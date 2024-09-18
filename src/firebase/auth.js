@@ -7,6 +7,7 @@ import {
   updatePassword,
   signInWithPopup,
   GoogleAuthProvider,
+  deleteUser,
 } from "firebase/auth";
 
 export const doCreateUserWithEmailAndPassword = async (email, password) => {
@@ -35,6 +36,10 @@ export const doPasswordReset = (email) => {
 
 export const doPasswordChange = (password) => {
   return updatePassword(auth.currentUser, password);
+};
+
+export const doDeleteUser = (currentUser) => {
+  return deleteUser(auth.currentUser)
 };
 
 export const doSendEmailVerification = () => {

@@ -1,14 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import { auth } from "../../firebase/firebase";
-// import { GoogleAuthProvider } from "firebase/auth";
+import { GoogleAuthProvider } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 
+
+//Create context object
 const AuthContext = React.createContext();
 
+//Export function for use on different pages
 export function useAuth() {
   return useContext(AuthContext);
 }
 
+//Define the states of the authcontext object
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
@@ -33,10 +37,10 @@ export function AuthProvider({ children }) {
       setIsEmailUser(isEmail);
 
       // check if the auth provider is google or not
-    //   const isGoogle = user.providerData.some(
-    //     (provider) => provider.providerId === GoogleAuthProvider.PROVIDER_ID
-    //   );
-    //   setIsGoogleUser(isGoogle);
+      const isGoogle = user.providerData.some(
+         (provider) => provider.providerId === GoogleAuthProvider.PROVIDER_ID
+       );
+       setIsGoogleUser(isGoogle);
 
       setUserLoggedIn(true);
     } else {
