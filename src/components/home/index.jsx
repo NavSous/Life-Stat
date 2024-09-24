@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/authContext'
+import CategoryList from './data'
 
 const Home = () => {
     const { currentUser } = useAuth()
@@ -7,6 +8,7 @@ const Home = () => {
         return (
             <div className='text-2xl font-bold pt-14' style={{marginLeft: '5vw'}}>
                 Welcome {currentUser.displayName ? currentUser.displayName : currentUser.email}, below are your current stats
+                <CategoryList />
             </div>
         )
     }

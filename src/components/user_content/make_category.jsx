@@ -17,6 +17,7 @@ const MakeCategory = () => {
         user_id: currentUser.uid,
       });
       console.log("Document written with ID: ", docRef.id);
+      window.location.href = "/"
     } catch (e) {
       console.error("Error adding document: ", e);
     }
