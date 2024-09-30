@@ -13,7 +13,7 @@ const MakeCategory = () => {
     try {
       const docRef = await addDoc(collection(db, "Category"), {
         name: name,
-        stats: {"a":1, "b":2},
+        stats: {},
         user_id: currentUser.uid,
       });
       console.log("Document written with ID: ", docRef.id);
