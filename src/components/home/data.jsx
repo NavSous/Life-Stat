@@ -286,9 +286,9 @@ export default function CategoryList() {
         </div>
       )}
       <div className="mt-4">
-        <Button onClick={() => console.log('Add new category')}>
+        <a href="/make_category">
           Add New Category
-        </Button>
+        </a>
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
