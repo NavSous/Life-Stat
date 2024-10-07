@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { getFirestore, collection, doc, updateDoc, deleteDoc, deleteField, onSnapshot, query, where } from 'firebase/firestore'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Save } from 'lucide-react'
 
 // Simplified UI components
 const Card = ({ children }) => (
@@ -19,12 +19,14 @@ const Button = ({ children, onClick, className = "" }) => (
   </button>
 )
 
-const Input = ({ value, onChange, placeholder }) => (
+const Input = ({ value, onChange, placeholder, onKeyPress, onBlur }) => (
   <input
     type="text"
     value={value}
     onChange={onChange}
     placeholder={placeholder}
+    onKeyPress={onKeyPress}
+    onBlur={onBlur}
     className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
   />
 )
@@ -71,6 +73,7 @@ export default function CategoryList() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null)
   const [confirmMessage, setConfirmMessage] = useState('')
+  const [editing, setEditing] = useState({})
 
   // Effect hook to handle authentication and fetch user categories
   useEffect(() => {
@@ -189,6 +192,48 @@ export default function CategoryList() {
     setShowConfirmDialog(false)
   }
 
+  // Function to handle stat change
+  const handleStatChange = (categoryId, statKey, newValue) => {
+    setEditing(prevEditing => ({
+      ...prevEditing,
+      [categoryId]: { ...prevEditing[categoryId], [statKey]: newValue }
+    }))
+  }
+
+  // Function to handle stat update
+  const handleStatUpdate = (categoryId, statKey) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    const updatedData = {
+      stats: {
+        ...documents.find(doc => doc.id === categoryId).stats,
+        [statKey]: editing[categoryId][statKey]
+      }
+    }
+    updateDoc(docRef, updatedData)
+      .then(() => {
+        console.log("Stat updated successfully")
+        setEditing(prevEditing => ({ ...prevEditing, [categoryId]: { ...prevEditing[categoryId], [statKey]: undefined } }))
+      })
+      .catch((error) => {
+        console.error("Error updating stat: ", error)
+      })
+  }
+
+  // Function to handle key press
+  const handleKeyPress = (event, categoryId, statKey) => {
+    if (event.key === 'Enter') {
+      handleStatUpdate(categoryId, statKey)
+    }
+  }
+
+  // Function to handle blur
+  const handleBlur = (categoryId, statKey) => {
+    if (editing[categoryId] && editing[categoryId][statKey] !== undefined) {
+      handleStatUpdate(categoryId, statKey)
+    }
+  }
+
   // Render loading state
   if (loading) {
     return <div className="text-center p-4">Loading...</div>
@@ -229,9 +274,23 @@ export default function CategoryList() {
               <ul>
                 {Object.entries(doc.stats || {}).map(([key, value]) => (
                   <li key={key} className="mb-1 flex justify-between items-center">
-                    <span>
-                      <span className="font-medium">{key}:</span> {value}
+                    <span className="flex-grow mr-2">
+                      <span className="font-medium">{key}:</span>
+                      <Input
+                        value={editing[doc.id] && editing[doc.id][key] !== undefined ? editing[doc.id][key] : value}
+                        onChange={(e) => handleStatChange(doc.id, key, e.target.value)}
+                        onKeyPress={(e) => handleKeyPress(e, doc.id, key)}
+                        onBlur={() => handleBlur(doc.id, key)}
+                      />
                     </span>
+                    {editing[doc.id] && editing[doc.id][key] !== undefined && (
+                      <button
+                        onClick={() => handleStatUpdate(doc.id, key)}
+                        className="text-green-500 hover:text-green-700 mr-2"
+                      >
+                        <Save size={16} />
+                      </button>
+                    )}
                     <button 
                       onClick={() => showDeleteConfirmation(
                         () => handleDeleteStat(doc.id, key),
