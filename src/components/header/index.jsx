@@ -12,6 +12,8 @@ const Header = () => {
                 userLoggedIn
                     ?
                     <>
+                        <Link className='text-sm text-blue-600 underline' to={'/'}>Dashboard</Link>
+
                         <button onClick={() => { doSignOut().then(() => { navigate('/login') }) }} className='text-sm text-blue-600 underline'>Logout</button>
                         <Link className='text-sm text-blue-600 underline' to={'/profile'}>Profile</Link>
                         <Link className='text-sm text-blue-600 underline' to={'/make_category'}>New Category</Link>

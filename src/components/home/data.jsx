@@ -1,139 +1,9 @@
-/*
-import React, { useState, useEffect } from 'react';
-import { getFirestore } from 'firebase/firestore';
-import { useAuth } from '../../contexts/authContext';
-import { collection, doc, updateDoc, onSnapshot } from "firebase/firestore";
-import "../../App.css";
-
-function CategoryList() {
-  const { currentUser } = useAuth();
-  const [documents, setDocuments] = useState([]);
-  const [editing, setEditing] = useState({}); // Track which document is being edited
-  const [showModal, setShowModal] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [newStatName, setNewStatName] = useState('');
-  const [newStatValue, setNewStatValue] = useState('');
-  const db = getFirestore();
-  const colRef = collection(db, 'Category');
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(colRef, snapshot => {
-      const docs = snapshot.docs.filter(doc => doc.data().user_id === currentUser.uid)
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data(), // Spread the document data
-        }));
-      setDocuments(docs);
-    });
-
-    return unsubscribe; // Cleanup on component unmount
-  }, [currentUser]); // Re-run the effect when the current user changes
-
-  const handleStatChange = (docId, statKey, newValue) => {
-    setEditing(prevEditing => ({ ...prevEditing, [docId]: { ...prevEditing[docId], [statKey]: newValue } }));
-  };
-
-  const handleUpdate = (docId, statKey) => {
-    const docRef = doc(db, 'Category', docId);
-    const updatedData = { stats: { ...documents.find(doc => doc.id === docId).stats, [statKey]: editing[docId][statKey] } };
-    updateDoc(docRef, updatedData)
-      .then(() => {
-        console.log("Document updated successfully");
-        setEditing(prevEditing => ({ ...prevEditing, [docId]: undefined })); // Reset editing state
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-      });
-  };
-
-  const handleKeyPress = (event, docId, statKey) => {
-    if (event.key === 'Enter') {
-      handleUpdate(docId, statKey);
-    }
-  };
-
-  const handleBlur = (docId, statKey) => {
-    setEditing(prevEditing => ({ ...prevEditing, [docId]: undefined })); // Reset editing state
-  };
-
-  const handleAddStat = (categoryId) => {
-    setSelectedCategoryId(categoryId);
-    setShowModal(true);
-  };
-
-  const handleModalSubmit = () => {
-    if (newStatName && newStatValue) {
-      const docRef = doc(db, 'Category', selectedCategoryId);
-      const updatedData = { 
-        stats: { 
-          ...documents.find(doc => doc.id === selectedCategoryId).stats,
-          [newStatName]: newStatValue 
-        }
-      };
-      updateDoc(docRef, updatedData)
-        .then(() => {
-          console.log("New stat added successfully");
-          setShowModal(false);
-          setNewStatName('');
-          setNewStatValue('');
-        })
-        .catch((error) => {
-          console.error("Error adding new stat: ", error);
-        });
-    }
-  };
-
-  return (
-    <div className="dashboard">
-      {documents.map(doc => (
-        <div key={doc.id} className="category-card">
-          <h3>{doc.name}</h3>
-          <div className="stats-container">
-            {Object.entries(doc.stats).map(([key, value]) => (
-              <div key={key} className="stat-input">
-                <label>{key}: &nbsp;</label>
-                <input
-                  type="text"
-                  value={editing[doc.id] && editing[doc.id][key] !== undefined ? editing[doc.id][key] : value}
-                  onChange={(event) => handleStatChange(doc.id, key, event.target.value)}
-                  onKeyPress={(event) => handleKeyPress(event, doc.id, key)}
-                  onBlur={() => handleBlur(doc.id, key)}
-                />
-              </div>
-            ))}
-          </div>
-          <button className="add-stat-button" onClick={() => handleAddStat(doc.id)}>Add New Stat</button>
-          {showModal && selectedCategoryId === doc.id && (
-            <div className="modal">
-              <input 
-                type="text" 
-                placeholder="Stat Name" 
-                value={newStatName}
-                onChange={(e) => setNewStatName(e.target.value)}
-              />
-              <input 
-                type="text" 
-                placeholder="Initial Value" 
-                value={newStatValue}
-                onChange={(e) => setNewStatValue(e.target.value)}
-              />
-              <button className="submit-button" onClick={handleModalSubmit}>Submit</button>
-              <button className="cancel-button" onClick={() => setShowModal(false)}>Cancel</button>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export default CategoryList;
-*/
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { getFirestore, collection, doc, updateDoc, onSnapshot, query, where } from 'firebase/firestore'
+import { getFirestore, collection, doc, updateDoc, deleteDoc, deleteField, onSnapshot, query, where } from 'firebase/firestore'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { Trash2 } from 'lucide-react'
 
 // Simplified UI components
 const Card = ({ children }) => (
@@ -163,7 +33,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg">
         {children}
         <Button onClick={onClose} className="mt-4">Close</Button>
@@ -172,7 +42,24 @@ const Modal = ({ isOpen, onClose, children }) => {
   )
 }
 
+const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg">
+        <p className="mb-4">{message}</p>
+        <div className="flex justify-end space-x-2">
+          <Button onClick={onClose} className="bg-gray-500">Cancel</Button>
+          <Button onClick={onConfirm} className="bg-red-500">Delete</Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CategoryList() {
+  // State variables
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -181,7 +68,11 @@ export default function CategoryList() {
   const [newStatName, setNewStatName] = useState('')
   const [newStatValue, setNewStatValue] = useState('')
   const [currentUser, setCurrentUser] = useState(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [confirmAction, setConfirmAction] = useState(null)
+  const [confirmMessage, setConfirmMessage] = useState('')
 
+  // Effect hook to handle authentication and fetch user categories
   useEffect(() => {
     const auth = getAuth()
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -194,9 +85,11 @@ export default function CategoryList() {
       }
     })
 
+    // Cleanup function to unsubscribe from the auth listener
     return () => unsubscribeAuth()
   }, [])
 
+  // Function to fetch user-specific categories
   const fetchUserCategories = (userId) => {
     const db = getFirestore()
     const colRef = collection(db, 'Category')
@@ -218,14 +111,17 @@ export default function CategoryList() {
       }
     )
 
+    // Return the unsubscribe function
     return unsubscribe
   }
 
+  // Function to handle adding a new stat
   const handleAddStat = (categoryId) => {
     setSelectedCategoryId(categoryId)
     setShowModal(true)
   }
 
+  // Function to handle submitting a new stat
   const handleModalSubmit = () => {
     if (newStatName && newStatValue) {
       const db = getFirestore()
@@ -249,18 +145,66 @@ export default function CategoryList() {
     }
   }
 
+  // Function to handle deleting a stat
+  const handleDeleteStat = (categoryId, statName) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    const updatedData = { 
+      [`stats.${statName}`]: deleteField()
+    }
+    updateDoc(docRef, updatedData)
+      .then(() => {
+        console.log("Stat deleted successfully")
+      })
+      .catch((error) => {
+        console.error("Error deleting stat: ", error)
+      })
+  }
+
+  // Function to handle deleting a category
+  const handleDeleteCategory = (categoryId) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    deleteDoc(docRef)
+      .then(() => {
+        console.log("Category deleted successfully")
+      })
+      .catch((error) => {
+        console.error("Error deleting category: ", error)
+      })
+  }
+
+  // Function to show confirmation dialog
+  const showDeleteConfirmation = (action, message) => {
+    setConfirmAction(() => action)
+    setConfirmMessage(message)
+    setShowConfirmDialog(true)
+  }
+
+  // Function to handle confirmation
+  const handleConfirm = () => {
+    if (confirmAction) {
+      confirmAction()
+    }
+    setShowConfirmDialog(false)
+  }
+
+  // Render loading state
   if (loading) {
     return <div className="text-center p-4">Loading...</div>
   }
 
+  // Render error state
   if (error) {
     return <div className="text-center p-4 text-red-500">{error}</div>
   }
 
+  // Render login prompt if no user is authenticated
   if (!currentUser) {
     return <div className="text-center p-4">Please log in to view your categories.</div>
   }
 
+  // Main render
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My Categories</h1>
@@ -270,11 +214,33 @@ export default function CategoryList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map(doc => (
             <Card key={doc.id}>
-              <h2 className="text-xl font-semibold mb-2">{doc.name}</h2>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-xl font-semibold">{doc.name}</h2>
+                <button 
+                  onClick={() => showDeleteConfirmation(
+                    () => handleDeleteCategory(doc.id),
+                    `Are you sure you want to delete the category "${doc.name}"?`
+                  )}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
               <ul>
                 {Object.entries(doc.stats || {}).map(([key, value]) => (
-                  <li key={key} className="mb-1">
-                    <span className="font-medium">{key}:</span> {value}
+                  <li key={key} className="mb-1 flex justify-between items-center">
+                    <span>
+                      <span className="font-medium">{key}:</span> {value}
+                    </span>
+                    <button 
+                      onClick={() => showDeleteConfirmation(
+                        () => handleDeleteStat(doc.id, key),
+                        `Are you sure you want to delete the stat "${key}"?`
+                      )}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -286,7 +252,7 @@ export default function CategoryList() {
         </div>
       )}
       <div className="mt-4">
-        <a href="/make_category">
+        <a href="/make_category" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
           Add New Category
         </a>
       </div>
@@ -315,6 +281,13 @@ export default function CategoryList() {
         </div>
         <Button onClick={handleModalSubmit}>Submit</Button>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirm}
+        message={confirmMessage}
+      />
     </div>
   )
 }
