@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { getFirestore, collection, doc, updateDoc, deleteDoc, deleteField, onSnapshot, query, where } from 'firebase/firestore'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { Trash2, Save } from 'lucide-react'
+import { Trash2, Save, PlusCircle, CheckCircle, XCircle } from 'lucide-react'
 
 // Simplified UI components
 const Card = ({ children }) => (
@@ -66,14 +66,19 @@ export default function CategoryList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [showGoalModal, setShowGoalModal] = useState(false)
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
   const [newStatName, setNewStatName] = useState('')
   const [newStatValue, setNewStatValue] = useState('')
+  const [newGoalName, setNewGoalName] = useState('')
+  const [newGoalStat, setNewGoalStat] = useState('')
+  const [newGoalTarget, setNewGoalTarget] = useState('')
   const [currentUser, setCurrentUser] = useState(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null)
   const [confirmMessage, setConfirmMessage] = useState('')
   const [editing, setEditing] = useState({})
+  const [editingGoal, setEditingGoal] = useState({})
 
   // Effect hook to handle authentication and fetch user categories
   useEffect(() => {
@@ -214,6 +219,8 @@ export default function CategoryList() {
       .then(() => {
         console.log("Stat updated successfully")
         setEditing(prevEditing => ({ ...prevEditing, [categoryId]: { ...prevEditing[categoryId], [statKey]: undefined } }))
+        // Update goals associated with this stat
+        updateGoalsForStat(categoryId, statKey, editing[categoryId][statKey])
       })
       .catch((error) => {
         console.error("Error updating stat: ", error)
@@ -233,6 +240,123 @@ export default function CategoryList() {
       handleStatUpdate(categoryId, statKey)
     }
   }
+
+  // Function to handle adding a new goal
+  const handleAddGoal = (categoryId) => {
+    setSelectedCategoryId(categoryId)
+    setShowGoalModal(true)
+  }
+
+  // Function to handle submitting a new goal
+  const handleGoalModalSubmit = () => {
+    if (newGoalName && newGoalStat && newGoalTarget) {
+      const db = getFirestore()
+      const docRef = doc(db, 'Category', selectedCategoryId)
+      const category = documents.find(doc => doc.id === selectedCategoryId)
+      const currentValue = category.stats[newGoalStat] || '0'
+      const newGoal = {
+        name: newGoalName,
+        stat: newGoalStat,
+        currentValue: currentValue,
+        targetValue: newGoalTarget,
+        achieved: parseFloat(currentValue) >= parseFloat(newGoalTarget)
+      }
+      const updatedData = { 
+        goals: { 
+          ...category.goals,
+          [newGoalName]: newGoal 
+        }
+      }
+      updateDoc(docRef, updatedData)
+        .then(() => {
+          console.log("New goal added successfully")
+          setShowGoalModal(false)
+          setNewGoalName('')
+          setNewGoalStat('')
+          setNewGoalTarget('')
+        })
+        .catch((error) => {
+          console.error("Error adding new goal: ", error)
+        })
+    }
+  }
+
+  // Function to handle deleting a goal
+  const handleDeleteGoal = (categoryId, goalName) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    const updatedData = { 
+      [`goals.${goalName}`]: deleteField()
+    }
+    updateDoc(docRef, updatedData)
+      .then(() => {
+        console.log("Goal deleted successfully")
+      })
+      .catch((error) => {
+        console.error("Error deleting goal: ", error)
+      })
+  }
+
+  // Function to update goals when associated stat changes
+  const updateGoalsForStat = (categoryId, statKey, newValue) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    const category = documents.find(doc => doc.id === categoryId)
+    const updatedGoals = { ...category.goals }
+    
+    Object.entries(category.goals).forEach(([goalName, goal]) => {
+      if (goal.stat === statKey) {
+        updatedGoals[goalName] = {
+          ...goal,
+          currentValue: newValue,
+          achieved: parseFloat(newValue) >= parseFloat(goal.targetValue)
+        }
+      }
+    })
+
+    updateDoc(docRef, { goals: updatedGoals })
+      .then(() => {
+        console.log("Goals updated successfully")
+      })
+      .catch((error) => {
+        console.error("Error updating goals: ", error)
+      })
+  }
+
+  // Function to calculate goal progress percentage
+  const calculateGoalProgress = (currentValue, targetValue) => {
+    const current = parseFloat(currentValue)
+    const target = parseFloat(targetValue)
+    if (isNaN(current) || isNaN(target) || target === 0) return 0
+    return Math.min(Math.round((current / target) * 100), 100)
+  }
+
+  const handleGoalUpdate = (categoryId, goalName, field, value) => {
+    const db = getFirestore()
+    const docRef = doc(db, 'Category', categoryId)
+    const category = documents.find(doc => doc.id === categoryId)
+    const updatedGoal = { ...category.goals[goalName], [field]: value }
+    
+    if (field === 'targetValue') {
+      updatedGoal.achieved = parseFloat(updatedGoal.currentValue) >= parseFloat(value)
+    }
+
+    const updatedData = { 
+      goals: { 
+        ...category.goals,
+        [goalName]: updatedGoal 
+      }
+    }
+    updateDoc(docRef, updatedData)
+      .then(() => {
+        console.log("Goal updated successfully")
+        setEditingGoal(prevEditing => ({ ...prevEditing, [categoryId]: { ...prevEditing[categoryId], [goalName]: undefined } }))
+      })
+      .catch((error) => {
+        console.error("Error updating goal: ", error)
+      })
+  }
+
 
   // Render loading state
   if (loading) {
@@ -271,6 +395,7 @@ export default function CategoryList() {
                   <Trash2 size={20} />
                 </button>
               </div>
+              <h3 className="text-lg font-semibold mt-4 mb-2">Stats</h3>
               <ul>
                 {Object.entries(doc.stats || {}).map(([key, value]) => (
                   <li key={key} className="mb-1 flex justify-between items-center">
@@ -294,6 +419,7 @@ export default function CategoryList() {
                     <button 
                       onClick={() => showDeleteConfirmation(
                         () => handleDeleteStat(doc.id, key),
+                
                         `Are you sure you want to delete the stat "${key}"?`
                       )}
                       className="text-red-500 hover:text-red-700"
@@ -305,6 +431,70 @@ export default function CategoryList() {
               </ul>
               <Button onClick={() => handleAddStat(doc.id)} className="mt-2">
                 Add Stat
+              </Button>
+              
+              <h3 className="text-lg font-semibold mt-4 mb-2">Goals</h3>
+              <ul>
+                {Object.entries(doc.goals || {}).map(([key, goal]) => (
+                  <li key={key} className="mb-2 p-2 border rounded">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{goal.name}</span>
+                      <button 
+                        onClick={() => showDeleteConfirmation(
+                          () => handleDeleteGoal(doc.id, key),
+                          `Are you sure you want to delete the goal "${key}"?`
+                        )}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <div>Stat: {goal.stat}</div>
+                    <div>
+                      Current: {goal.currentValue}
+                      {/* Current value is not editable as it's linked to the stat */}
+                    </div>
+                    <div>
+                      Target: 
+                      <Input
+                        value={editingGoal[doc.id]?.[key]?.targetValue !== undefined ? editingGoal[doc.id][key].targetValue : goal.targetValue}
+                        onChange={(e) => setEditingGoal(prev => ({
+                          ...prev,
+                          [doc.id]: { ...prev[doc.id], [key]: { ...prev[doc.id]?.[key], targetValue: e.target.value } }
+                        }))}
+                        onBlur={() => {
+                          if (editingGoal[doc.id]?.[key]?.targetValue !== undefined) {
+                            handleGoalUpdate(doc.id, key, 'targetValue', editingGoal[doc.id][key].targetValue)
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center">
+                      Progress: 
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 ml-2">
+                        <div 
+                          className="bg-blue-600 h-2.5 rounded-full" 
+                          style={{width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%`}}
+                        ></div>
+                      </div>
+                      <span className="ml-2">{calculateGoalProgress(goal.currentValue, goal.targetValue)}%</span>
+                    </div>
+                    <div className="mt-1">
+                      Status: {goal.achieved ? (
+                        <span className="text-green-500 flex items-center">
+                          Achieved <CheckCircle size={16} className="ml-1" />
+                        </span>
+                      ) : (
+                        <span className="text-red-500 flex items-center">
+                          Not Achieved <XCircle size={16} className="ml-1" />
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <Button onClick={() => handleAddGoal(doc.id)} className="mt-2">
+                Add Goal
               </Button>
             </Card>
           ))}
@@ -339,6 +529,46 @@ export default function CategoryList() {
           />
         </div>
         <Button onClick={handleModalSubmit}>Submit</Button>
+      </Modal>
+
+      <Modal isOpen={showGoalModal} onClose={() => setShowGoalModal(false)}>
+        <h2 className="text-xl font-bold mb-4">Add New Goal</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Goal Name
+          </label>
+          <Input
+            value={newGoalName}
+            onChange={(e) => setNewGoalName(e.target.value)}
+            placeholder="Enter goal name"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Associated Stat
+          </label>
+          <select
+            value={newGoalStat}
+            onChange={(e) => setNewGoalStat(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select a stat</option>
+            {Object.keys(documents.find(doc => doc.id === selectedCategoryId)?.stats || {}).map(statName => (
+              <option key={statName} value={statName}>{statName}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Target Value
+          </label>
+          <Input
+            value={newGoalTarget}
+            onChange={(e) => setNewGoalTarget(e.target.value)}
+            placeholder="Enter target value"
+          />
+        </div>
+        <Button onClick={handleGoalModalSubmit}>Submit</Button>
       </Modal>
 
       <ConfirmDialog
