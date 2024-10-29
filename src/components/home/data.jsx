@@ -475,122 +475,127 @@ export default function CategoryList() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredDocuments.map(doc => (
             <div key={doc.id} className="bg-white shadow-md rounded-lg overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">{doc.name}</h2>
-                  <button
-                    onClick={() => showDeleteConfirmation(
-                      () => handleDeleteCategory(doc.id),
-                      `Are you sure you want to delete the category "${doc.name}"?`
-                    )}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+<div className="p-6">
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-xl font-semibold">{doc.name}</h2>
+    <button
+      onClick={() => showDeleteConfirmation(
+        () => handleDeleteCategory(doc.id),
+        `Are you sure you want to delete the category "${doc.name}"?`
+      )}
+      className="text-red-500 hover:text-red-700"
+    >
+      <Trash2 size={20} />
+    </button>
+  </div>
+  <div className="flex flex-wrap justify-between">
+    <div className="w-full md:w-1/2 xl:w-1/2 p-4">
+      <h3 className="text-lg font-semibold mb-2">Stats</h3>
+      <ul className="space-y-2">
+        {Object.entries(doc.stats || {}).map(([key, value]) => (
+          <li key={key} className="flex justify-between items-center">
+            <span className="font-medium">{key}:</span>
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={editing[doc.id] && editing[doc.id][key] !== undefined ? editing[doc.id][key] : value}
+                onChange={(e) => handleStatChange(doc.id, key, e.target.value)}
+                onKeyPress={(e) => handleKeyPress(e, doc.id, key)}
+                onBlur={() => handleBlur(doc.id, key)}
+                className="w-24 border border-gray-300 rounded-md px-2 py-1"
+              />
+              {editing[doc.id] && editing[doc.id][key] !== undefined && (
+                <button
+                  onClick={() => handleStatUpdate(doc.id, key)}
+                  className="text-green-500 hover:text-green-700"
+                >
+                  <Save size={16} />
+                </button>
+              )}
+              <button
+                onClick={() => showDeleteConfirmation(
+                  () => handleDeleteStat(doc.id, key),
+                  `Are you sure you want to delete the stat "${key}"?`
+                )}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <button onClick={() => handleAddStat(doc.id)} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Add Stat
+      </button>
+    </div>
+    <div className="w-full md:w-1/2 xl:w-1/2 p-4">
+      <h3 className="text-lg font-semibold mb-2">Goals</h3>
+      <ul className="space-y-4">
+        {Object.entries(doc.goals || {}).map(([key, goal]) => (
+          <li key={key} className="border rounded-md p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-medium">{goal.name}</span>
+              <button
+                onClick={() => showDeleteConfirmation(
+                  () => handleDeleteGoal(doc.id, key),
+                  `Are you sure you want to delete the goal "${key}"?`
+                )}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+            <div>Stat: {goal.stat}</div>
+            <div>Current: {goal.currentValue}</div>
+            <div className="flex items-center space-x-2">
+              <span>Target:</span>
+              <input
+                type="text"
+                value={editingGoal[doc.id]?.[key]?.targetValue !== undefined ? editingGoal[doc.id][key].targetValue : goal.targetValue}
+                onChange={(e) => setEditingGoal(prev => ({
+                  ...prev,
+                  [doc.id]: { ...prev[doc.id], [key]: { ...prev[doc.id]?.[key], targetValue: e.target.value } }
+                }))}
+                onBlur={() => {
+                  if (editingGoal[doc.id]?.[key]?.targetValue !== undefined) {
+                    handleGoalUpdate(doc.id, key, 'targetValue', editingGoal[doc.id][key].targetValue)
+                  }
+                }}
+                className="w-24 border border-gray-300 rounded-md px-2 py-1"
+              />
+            </div>
+            <div className="mt-2">
+              <div className="flex items-center">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div 
+                    className="bg-blue-600 h-2.5 rounded-full" 
+                    style={{width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%`}}
+                  ></div>
                 </div>
-                <h3 className="text-lg font-semibold mt-4 mb-2">Stats</h3>
-                <ul className="space-y-2">
-                  {Object.entries(doc.stats || {}).map(([key, value]) => (
-                    <li key={key} className="flex justify-between items-center">
-                      <span className="font-medium">{key}:</span>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          value={editing[doc.id] && editing[doc.id][key] !== undefined ? editing[doc.id][key] : value}
-                          onChange={(e) => handleStatChange(doc.id, key, e.target.value)}
-                          onKeyPress={(e) => handleKeyPress(e, doc.id, key)}
-                          onBlur={() => handleBlur(doc.id, key)}
-                          className="w-24 border border-gray-300 rounded-md px-2 py-1"
-                        />
-                        {editing[doc.id] && editing[doc.id][key] !== undefined && (
-                          <button
-                            onClick={() => handleStatUpdate(doc.id, key)}
-                            className="text-green-500 hover:text-green-700"
-                          >
-                            <Save size={16} />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => showDeleteConfirmation(
-                            () => handleDeleteStat(doc.id, key),
-                            `Are you sure you want to delete the stat "${key}"?`
-                          )}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => handleAddStat(doc.id)} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Add Stat
-                </button>
-                
-                <h3 className="text-lg font-semibold mt-6 mb-2">Goals</h3>
-                <ul className="space-y-4">
-                  {Object.entries(doc.goals || {}).map(([key, goal]) => (
-                    <li key={key} className="border rounded-md p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">{goal.name}</span>
-                        <button
-                          onClick={() => showDeleteConfirmation(
-                            () => handleDeleteGoal(doc.id, key),
-                            `Are you sure you want to delete the goal "${key}"?`
-                          )}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                      <div>Stat: {goal.stat}</div>
-                      <div>Current: {goal.currentValue}</div>
-                      <div className="flex items-center space-x-2">
-                        <span>Target:</span>
-                        <input
-                          type="text"
-                          value={editingGoal[doc.id]?.[key]?.targetValue !== undefined ? editingGoal[doc.id][key].targetValue : goal.targetValue}
-                          onChange={(e) => setEditingGoal(prev => ({
-                            ...prev,
-                            [doc.id]: { ...prev[doc.id], [key]: { ...prev[doc.id]?.[key], targetValue: e.target.value } }
-                          }))}
-                          onBlur={() => {
-                            if (editingGoal[doc.id]?.[key]?.targetValue !== undefined) {
-                              handleGoalUpdate(doc.id, key, 'targetValue', editingGoal[doc.id][key].targetValue)
-                            }
-                          }}
-                          className="w-24 border border-gray-300 rounded-md px-2 py-1"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div 
-                              className="bg-blue-600 h-2.5 rounded-full" 
-                              style={{width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%`}}
-                            ></div>
-                          </div>
-                          <span className="ml-2 text-sm">{calculateGoalProgress(goal.currentValue, goal.targetValue)}%</span>
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        Status: {goal.achieved ? (
-                          <span className="text-green-500 flex items-center">
-                            Achieved <CheckCircle size={16} className="ml-1" />
-                          </span>
-                        ) : (
-                          <span className="text-red-500 flex items-center">
-                            Not Achieved <XCircle size={16} className="ml-1" />
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => handleAddGoal(doc.id)} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Add Goal
-                </button>
+                <span className="ml-2 text-sm">{calculateGoalProgress(goal.currentValue, goal.targetValue)}%</span>
               </div>
+            </div>
+            <div className="mt-2">
+              Status: {goal.achieved ? (
+                <span className="text-green-500 flex items-center">
+                  Achieved <CheckCircle size={16} className="ml-1" />
+                </span>
+              ) : (
+                <span className="text-red-500 flex items-center">
+                  Not Achieved <XCircle size={16} className="ml-1" />
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      <button onClick={() => handleAddGoal(doc.id)} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Add Goal
+      </button>
+    </div>
+  </div>
+</div>
             </div>
           ))}
         </div>
