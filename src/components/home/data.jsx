@@ -577,7 +577,7 @@ export default function CategoryList() {
               </div>
             </div>
             <div className="mt-2">
-              Status: {goal.achieved ? (
+              {goal.achieved ? (
                 <span className="text-green-500 flex items-center">
                   Achieved <CheckCircle size={16} className="ml-1" />
                 </span>
