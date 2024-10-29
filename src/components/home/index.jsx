@@ -7,7 +7,6 @@ const Home = () => {
     if(currentUser!=null){
         return (
             <div className='text-2xl font-bold pt-14' style={{marginLeft: '5vw'}}>
-                Welcome {currentUser.displayName ? currentUser.displayName : currentUser.email}, below are your current stats
                 <CategoryList />
             </div>
         )
