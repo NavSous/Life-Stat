@@ -3,7 +3,7 @@ import Register from "./components/auth/register";
 import Delete from "./components/auth/delete/deleteuser.jsx"
 import ConfirmDelete from "./components/auth/delete/deleteconfirm.jsx"
 
-
+import About from "./components/about"
 import Header from "./components/header";
 import Home from "./components/home";
 import Profile from "./components/profile/profile.jsx";
@@ -17,7 +17,11 @@ function App() {
   const routesArray = [
     {
       path: "*",
-      element: <Login />,
+      element: <Home />,
+    },
+    {
+      path: "/about",
+      element: <About />,
     },
     {
       path: "/make_category",

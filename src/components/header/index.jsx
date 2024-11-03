@@ -14,6 +14,8 @@ const Header = () => {
         ? [
             { label: 'Profile', to: '/profile' },
             { label: 'Logout', onClick: () => { doSignOut().then(() => { navigate('/login') }) } },
+            { label: 'About', to: '/about' },
+
           ]
         : [
             { label: 'Login', to: '/login' },
