@@ -1,26 +1,173 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/authContext'
+import { updateProfile, deleteUser, getAuth, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
+import { auth } from '../../firebase/firebase.js' // Make sure this path is correct
+
 
 const Profile = () => {
-    const { currentUser } = useAuth()
-    if (currentUser!=null){
-        return (
-            <div className='text-2xl font-bold pt-14' style={{marginLeft: '5vw'}}>
-                Name: {currentUser.displayName}
-                <br/>
-                ID: {currentUser.uid}
-                <br/>
-                Email: {currentUser.uid}
-            </div>
-        )
+    const { currentUser, logout } = useAuth()
+    const navigate = useNavigate()
+    const [isEditing, setIsEditing] = useState(false)
+    const [newDisplayName, setNewDisplayName] = useState(currentUser?.displayName || '')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [message, setMessage] = useState('')
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+    if (!currentUser) {
+        navigate('/')
+        return null
     }
-    else{
-        return(<script>
-            window.onload = function() {
-                window.location.replace("/")
-            };
-</script>)
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault()
+        setError('')
+        setMessage('')
+        try {
+            await updateProfile(auth.currentUser, { displayName: newDisplayName })
+            setMessage('Profile updated successfully!')
+            setIsEditing(false)
+            window.location.reload();
+        } catch (error) {
+            setError('Failed to update profile. ' + error.message)
+        }
     }
+
+    const handleDeleteAccount = async () => {
+        setError('');
+        setMessage('');
+        try {
+            if (password.toLowerCase() !== 'delete') {
+                setError('Please type "delete" to confirm account deletion.');
+                setShowDeleteModal(false);
+                return;         
+            }
     
+            const auth = getAuth();
+            const user = auth.currentUser;
+    
+            if (!user) {
+                throw new Error("No user is currently logged in.");
+            }
+    
+            await deleteUser(user);
+            await logout();
+            navigate('/');
+        } catch (error) {
+            setError('Failed to delete account. ' + error.message);
+        }
+    };
+
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <div className="max-w-md mx-auto bg-white rounded-lg overflow-hidden shadow-lg mt-20">
+                <div className="px-6 py-4">
+                    <div className="font-bold text-xl mb-2">User Profile</div>
+                    {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+                    {message && <p className="text-green-500 text-xs italic mb-4">{message}</p>}
+                    <div className="mb-4">
+                        <p className="text-gray-700 text-base">
+                            <span className="font-semibold">Name:</span> {currentUser.displayName}
+                        </p>
+                    </div>
+                    <div className="mb-4">
+                        <p className="text-gray-700 text-base">
+                            <span className="font-semibold">Email:</span> {currentUser.email}
+                        </p>
+                    </div>
+                    <div className="mb-4">
+                        <p className="text-gray-700 text-base">
+                            <span className="font-semibold">ID:</span> {currentUser.uid}
+                        </p>
+                    </div>
+                </div>
+                {isEditing ? (
+                    <form onSubmit={handleUpdateProfile} className="px-6 py-4 border-t">
+                        <div className="mb-4">
+                            <label htmlFor="displayName" className="block text-gray-700 text-sm font-bold mb-2">
+                                New Display Name:
+                            </label>
+                            <input
+                                type="text"
+                                id="displayName"
+                                value={newDisplayName}
+                                onChange={(e) => setNewDisplayName(e.target.value)}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <button
+                                type="submit"
+                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <div className="px-6 py-4 border-t">
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2"
+                        >
+                            Edit Profile
+                        </button>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        >
+                            Delete Account
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="deleteAccountModal">
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div className="mt-3 text-center">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">Delete Account</h3>
+                            <div className="mt-2 px-7 py-3">
+                                <p className="text-sm text-gray-500">
+                                    Please type the word: "Delete" to confirm your account deletion
+                                </p>
+                                <input
+                                    type="text"
+                                    className="mt-2 px-3 py-2 border shadow-sm border-gray-300 rounded-md w-full"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter your password"
+                                />
+                            </div>
+                            <div className="items-center px-4 py-3">
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                >
+                                    Delete Account
+                                </button>
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="mt-3 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
 }
+
 export default Profile
