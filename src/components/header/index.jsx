@@ -19,7 +19,7 @@ const Header = () => {
           ]
         : [
             { label: 'Login', to: '/login' },
-            { label: 'Register New Account', to: '/register' },
+            { label: 'Sign Up', to: '/register' },
             { label: 'About Life Stat', to: '/about' },
           ]
 

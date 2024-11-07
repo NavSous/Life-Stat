@@ -465,7 +465,7 @@ export default function CategoryList() {
         </div>
       </div>
       <div className="mb-4">
-        <button onClick={() => setShowNewCategoryModal(true)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        <button onClick={() => setShowNewCategoryModal(true)} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
           + Category
         </button>
       </div>
@@ -502,7 +502,7 @@ export default function CategoryList() {
                 onChange={(e) => handleStatChange(doc.id, key, e.target.value)}
                 onKeyPress={(e) => handleKeyPress(e, doc.id, key)}
                 onBlur={() => handleBlur(doc.id, key)}
-                className="w-24 border border-gray-300 rounded-md px-2 py-1"
+                className="w-32 border border-gray-300 rounded-md px-2 py-1"
               />
               {editing[doc.id] && editing[doc.id][key] !== undefined && (
                 <button
