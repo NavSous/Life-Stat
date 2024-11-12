@@ -268,23 +268,23 @@ export default function CategoryList() {
 
   // Main render
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
       <h1 className="text-3xl font-bold mb-6">My Categories</h1>
       
-      <div className="mb-6 flex items-center space-x-4">
-        <div className="flex-grow flex items-center space-x-2 bg-white rounded-md shadow-sm">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <div className="w-full flex items-center space-x-2 bg-white rounded-md shadow-sm">
           <Search className="text-gray-400 ml-3" />
           <input
             type="text"
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-grow px-3 py-2 focus:outline-none"
+            className="w-full px-3 py-2 focus:outline-none"
           />
         </div>
         <button 
           onClick={() => setModalState({ isOpen: true, type: 'category', data: {} })} 
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
+          className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
         >
           <PlusCircle className="mr-2" size={20} />
           Add Category
