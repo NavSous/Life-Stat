@@ -15,7 +15,6 @@ const Header = () => {
             { label: 'Profile', to: '/profile' },
             { label: 'Logout', onClick: () => { doSignOut().then(() => { navigate('/login') }) } },
             { label: 'About', to: '/about' },
-
           ]
         : [
             { label: 'Login', to: '/login' },
@@ -24,8 +23,8 @@ const Header = () => {
           ]
 
     return (
-        <nav style={{ '--header-height': '4rem' }} className='flex items-center justify-between w-full z-20 fixed top-0 left-0 h-[var(--header-height)] px-4 border-b bg-white shadow-sm'>
-            <Link to="/" className="text-xl font-bold text-blue-600">Life Stat</Link>
+        <nav style={{ '--header-height': '4rem' }} className='flex items-center justify-between w-full z-20 fixed top-0 left-0 h-[var(--header-height)] px-4 bg-transparent '>
+            <Link to="/" className="text-xl font-bold text-blue-800">Life Stat</Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-4">
@@ -50,7 +49,7 @@ const Header = () => {
                     </svg>
                 </button>
                 {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <div className="absolute right-0 mt-2 w-48 bg-white bg-opacity-90 rounded-md shadow-lg py-1">
                         {menuItems.map((item, index) => (
                             item.to ? (
                                 <Link 
