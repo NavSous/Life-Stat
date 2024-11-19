@@ -15,12 +15,14 @@ const Header = () => {
             { label: 'Profile', to: '/profile' },
             { label: 'Logout', onClick: () => { doSignOut().then(() => { navigate('/login') }) } },
             { label: 'About', to: '/about' },
+            { label: 'Privacy Policy', to: '/privacy_policy' },
 
           ]
         : [
             { label: 'Login', to: '/login' },
             { label: 'Sign Up', to: '/register' },
             { label: 'About Life Stat', to: '/about' },
+            { label: 'Privacy Policy', to: '/privacy_policy' },
           ]
 
     return (

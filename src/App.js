@@ -7,6 +7,7 @@ import About from "./components/about"
 import Header from "./components/header";
 import Home from "./components/home";
 import Profile from "./components/profile/profile.jsx";
+import Privacy from "./components/p_and_t/privaterms.jsx"
 
 import MakeCategory from "./components/user_content/make_category.jsx";
 
@@ -18,6 +19,10 @@ function App() {
     {
       path: "*",
       element: <Home />,
+    },
+    {
+      path: "privacy_policy",
+      element: <Privacy />
     },
     {
       path: "/about",
