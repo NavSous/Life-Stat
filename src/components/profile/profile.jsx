@@ -117,11 +117,7 @@ const Profile = () => {
                             <span className="font-semibold">Email:</span> {currentUser.email}
                         </p>
                     </div>
-                    <div className="mb-4">
-                        <p className="text-gray-700 text-base">
-                            <span className="font-semibold">ID:</span> {currentUser.uid}
-                        </p>
-                    </div>
+                    
                 </div>
                 {isEditing ? (
                     <form onSubmit={handleUpdateProfile} className="px-6 py-4 border-t">

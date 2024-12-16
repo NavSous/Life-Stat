@@ -25,10 +25,10 @@ const Home = () => {
           <div className="bg-white rounded-lg shadow-xl p-8">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-blue-800">Stats for Your Life Journey</h2>
             <p className="text-lg mb-6 text-gray-700">
-              LifeStat is your all-in-one solution for tracking and understanding every trackable aspect of your life. Whether you're managing finances, pursuing fitness goals, or monitoring academic progress, LifeStat helps you visualize your journey and celebrate achievements.
+              LifeStat is your all-in-one solution for tracking and understanding every quantitative aspect of your life. Whether you're managing finances, pursuing fitness goals, or monitoring academic progress, LifeStat helps you visualize your journey and celebrate achievements.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {['Create Customizable Stats', 'Visualize Completion of Goals', 'View Categories of Stats and Gaols', 'Form Positive Habits', 'Manage Projects', 'Achieve Anything!'].map((feature, index) => (
+              {['Create Customizable Stats', 'Visualize Completion of Goals', 'View Categories of Stats and Goals', 'Form Positive Habits', 'Manage Projects', 'Achieve Anything!'].map((feature, index) => (
                 <div key={index} className="bg-blue-50 rounded-lg p-4 flex items-center">
                   <svg className="w-6 h-6 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
