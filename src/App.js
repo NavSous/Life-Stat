@@ -13,6 +13,8 @@ import MakeCategory from "./components/user_content/make_category.jsx";
 
 import { AuthProvider } from "./contexts/authContext";
 import { useRoutes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react"
+
 
 function App() {
   const routesArray = [
@@ -62,6 +64,7 @@ function App() {
     <AuthProvider>
       <Header />
       <div className="w-full h-screen flex flex-col">{routesElement}</div>
+      <Analytics />
     </AuthProvider>
   );
 }
