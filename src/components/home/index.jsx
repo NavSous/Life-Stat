@@ -1,71 +1,115 @@
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '../../contexts/authContext'
-import CategoryList from './data'
+"use client"
+import { useAuth } from "../../contexts/authContext"
+import CategoryList from "./data"
+import { motion } from "framer-motion"
+import { ArrowRight, BarChart2, Target, Calendar, Zap, CheckCircle } from "lucide-react"
 
 const Home = () => {
   const { currentUser } = useAuth()
 
   if (currentUser != null) {
     return (
-      <div className='container mx-auto px-4 py-8'>
+      <div className="container mx-auto px-4 py-8">
         <CategoryList />
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-900 mb-4">Welcome to LifeStat</h1>
-          <p className="text-xl sm:text-2xl text-blue-700">Your Personal Life Tracker</p>
-        </header>
+  const features = [
+    { icon: BarChart2, text: "Create Customizable Stats" },
+    { icon: Target, text: "Visualize Goal Completion" },
+    { icon: Calendar, text: "Track Categories of Stats" },
+    { icon: Zap, text: "Form Positive Habits" },
+    { icon: CheckCircle, text: "Manage Projects" },
+    { icon: ArrowRight, text: "Achieve Anything!" },
+  ]
 
-        <section className="mb-16">
-          <div className="bg-white rounded-lg shadow-xl p-8">
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-blue-800">Stats for Your Life Journey</h2>
-            <p className="text-lg mb-6 text-gray-700">
-              LifeStat is your all-in-one solution for tracking and understanding every quantitative aspect of your life. Whether you're managing finances, pursuing fitness goals, or monitoring academic progress, LifeStat helps you visualize your journey and celebrate achievements.
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
+      <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24">
+        <motion.header
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-indigo-900 mb-4">Welcome to LifeStat</h1>
+          <p className="text-xl sm:text-2xl text-indigo-700">Your Personal Life Tracker</p>
+        </motion.header>
+
+        <motion.section
+          className="mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-sm bg-opacity-80">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-800">Stats for Your Life Journey</h2>
+            <p className="text-lg mb-8 text-gray-700 leading-relaxed">
+              LifeStat is your all-in-one solution for tracking and understanding every quantitative aspect of your
+              life. Visualize your journey, celebrate achievements, and unlock your full potential.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {['Create Customizable Stats', 'Visualize Completion of Goals', 'View Categories of Stats and Goals', 'Form Positive Habits', 'Manage Projects', 'Achieve Anything!'].map((feature, index) => (
-                <div key={index} className="bg-blue-50 rounded-lg p-4 flex items-center">
-                  <svg className="w-6 h-6 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <span className="text-blue-800">{feature}</span>
-                </div>
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-indigo-50 rounded-lg p-4 flex items-center transition-all hover:shadow-md hover:bg-indigo-100"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <feature.icon className="w-6 h-6 text-indigo-500 mr-3" />
+                  <span className="text-indigo-800">{feature.text}</span>
+                </motion.div>
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        <section>
-          <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-blue-800">Get Started</h2>
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center backdrop-blur-sm bg-opacity-80">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-800">Get Started</h2>
             {currentUser ? (
               <p className="text-lg text-gray-700">
-                Welcome back, <span className="font-semibold">{currentUser.email}</span>! Continue your journey of self-improvement and life tracking.
+                Welcome back, <span className="font-semibold">{currentUser.email}</span>! Continue your journey of
+                self-improvement and life tracking.
               </p>
             ) : (
               <div>
-                <p className="text-lg text-gray-700 mb-6">
-                  Ready to take control of your life's statistics? Sign up or log in to begin your LifeStat journey!
+                <p className="text-lg text-gray-700 mb-8 leading-relaxed">
+                  Ready to take control of your life's statistics? Sign up or log in to begin your LifeStat journey and
+                  unlock your full potential!
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <a href = "/register" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                  <motion.a
+                    href="/register"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 inline-flex items-center"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     Sign Up
-                  </a>
-                  <a href = "/login" className="bg-gray-200 hover:bg-gray-300 text-blue-800 font-bold py-3 px-6 rounded-lg transition duration-300">
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </motion.a>
+                  <motion.a
+                    href="/login"
+                    className="bg-purple-100 hover:bg-purple-200 text-indigo-800 font-bold py-3 px-6 rounded-lg transition duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     Log In
-                  </a>
+                  </motion.a>
                 </div>
               </div>
             )}
           </div>
-        </section>
+        </motion.section>
       </div>
     </div>
   )
 }
+
 export default Home
+
