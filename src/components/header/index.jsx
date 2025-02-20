@@ -28,7 +28,7 @@ const Header = () => {
     return (
         <div>
         <nav style={{ '--header-height': '4rem' }} className='flex items-center justify-between w-full z-20 fixed top-0 left-0 h-[var(--header-height)] px-4 border-b bg-white shadow-sm'>
-            <Link to="/" className="text-xl font-bold text-blue-600">Life Stat</Link>
+            <Link to="/" className="text-xl font-bold text-blue-600">LifeStat</Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-4">
