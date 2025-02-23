@@ -13,27 +13,50 @@ const Login = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault()
-        if(!isSigningIn) {
+        if (!isSigningIn) {
+            if (!email || !password) {
+                setErrorMessage('Please enter both email and password')
+                return
+            }
             setIsSigningIn(true)
-            await doSignInWithEmailAndPassword(email, password)
-            // doSendEmailVerification()
+            setErrorMessage('')
+            try {
+                console.log('Attempting to sign in with:', email)
+                await doSignInWithEmailAndPassword(email, password)
+                console.log('Sign in successful')
+                // If you want to send email verification, uncomment the next line
+                // await doSendEmailVerification()
+            } catch (error) {
+                console.error('Sign in error:', error)
+                setErrorMessage(error.message)
+            } finally {
+                setIsSigningIn(false)
+            }
         }
     }
 
-    const onGoogleSignIn = (e) => {
+    const onGoogleSignIn = async (e) => {
         e.preventDefault()
         if (!isSigningIn) {
             setIsSigningIn(true)
-            doSignInWithGoogle().catch(err => {
+            try {
+                await doSignInWithGoogle()
+                console.log('Google sign in successful')
+            } catch (err) {
+                console.error('Google sign in error:', err)
+                setErrorMessage(err.message)
+            } finally {
                 setIsSigningIn(false)
-            })
+            }
         }
+    }
+
+    if (userLoggedIn) {
+        return <Navigate to={'/home'} replace={true} />
     }
 
     return (
         <div>
-            {userLoggedIn && (<Navigate to={'/home'} replace={true} />)}
-
             <main className="w-full h-screen flex self-center place-content-center place-items-center">
                 <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
                     <div className="text-center">
@@ -53,11 +76,11 @@ const Login = () => {
                                 type="email"
                                 autoComplete='email'
                                 required
-                                value={email} onChange={(e) => { setEmail(e.target.value) }}
+                                value={email}
+                                onChange={(e) => { setEmail(e.target.value) }}
                                 className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                             />
                         </div>
-
 
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
@@ -67,7 +90,8 @@ const Login = () => {
                                 type="password"
                                 autoComplete='current-password'
                                 required
-                                value={password} onChange={(e) => { setPassword(e.target.value) }}
+                                value={password}
+                                onChange={(e) => { setPassword(e.target.value) }}
                                 className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                             />
                         </div>
@@ -86,11 +110,13 @@ const Login = () => {
                     </form>
                     <p className="text-center text-sm">Don't have an account? <Link to={'/register'} className="hover:underline font-bold">Sign up</Link></p>
                     <div className='flex flex-row text-center w-full'>
-                        <div className='border-b-2 mb-2.5 mr-2 w-full'></div><div className='text-sm font-bold w-fit'>OR</div><div className='border-b-2 mb-2.5 ml-2 w-full'></div>
+                        <div className='border-b-2 mb-2.5 mr-2 w-full'></div>
+                        <div className='text-sm font-bold w-fit'>OR</div>
+                        <div className='border-b-2 mb-2.5 ml-2 w-full'></div>
                     </div>
                     <button
                         disabled={isSigningIn}
-                        onClick={(e) => { onGoogleSignIn(e) }}
+                        onClick={onGoogleSignIn}
                         className={`w-full flex items-center justify-center gap-x-3 py-2.5 border rounded-lg text-sm font-medium  ${isSigningIn ? 'cursor-not-allowed' : 'hover:bg-gray-100 transition duration-300 active:bg-gray-100'}`}>
                         <svg className="w-5 h-5" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clipPath="url(#clip0_17_40)">
