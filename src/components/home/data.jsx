@@ -348,46 +348,15 @@ export default function CategoryList() {
 
     if (!goalEdits) return
 
+    // Create a copy of the goals object
+    const updatedGoals = { ...category.goals }
+
     // If the name is being changed
-    if (goalEdits.name && goalEdits.name !== goalKey) {
-      // Create a new goals object with the updated name
-      const newGoals = { ...category.goals }
-      const oldGoal = { ...newGoals[goalKey] }
-      delete newGoals[goalKey]
+    if (goalEdits.name && goalEdits.name !== goalKey && goalEdits.name.trim() !== "") {
+      // Create a new goal with the updated name
+      const updatedGoal = { ...updatedGoals[goalKey] }
 
       // Apply any other edits to the goal
-      if (goalEdits.target) {
-        oldGoal.targetValue = goalEdits.target
-        oldGoal.achieved = Number.parseFloat(oldGoal.currentValue) >= Number.parseFloat(goalEdits.target)
-      }
-
-      if (goalEdits.stat) {
-        oldGoal.stat = goalEdits.stat
-        oldGoal.currentValue = category.stats[goalEdits.stat] || "0"
-        oldGoal.achieved = Number.parseFloat(oldGoal.currentValue) >= Number.parseFloat(oldGoal.targetValue)
-      }
-
-      newGoals[goalEdits.name] = oldGoal
-
-      updateDoc(docRef, { goals: newGoals })
-        .then(() => {
-          console.log("Goal renamed successfully")
-          setEditing((prev) => {
-            const newEditing = { ...prev }
-            if (newEditing[categoryId]?.goals) {
-              delete newEditing[categoryId].goals[goalKey]
-            }
-            return newEditing
-          })
-        })
-        .catch((error) => {
-          console.error("Error renaming goal: ", error)
-        })
-    }
-    // If we're just updating target or stat
-    else {
-      const updatedGoal = { ...category.goals[goalKey] }
-
       if (goalEdits.target) {
         updatedGoal.targetValue = goalEdits.target
         updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
@@ -399,16 +368,17 @@ export default function CategoryList() {
         updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
       }
 
-      const updatedData = {
-        goals: {
-          ...category.goals,
-          [goalKey]: updatedGoal,
-        },
-      }
+      // Update the name property
+      updatedGoal.name = goalEdits.name
 
-      updateDoc(docRef, updatedData)
+      // Remove the old goal and add the new one
+      delete updatedGoals[goalKey]
+      updatedGoals[goalEdits.name] = updatedGoal
+
+      // Update the entire goals object in Firestore
+      updateDoc(docRef, { goals: updatedGoals })
         .then(() => {
-          console.log("Goal updated successfully")
+          console.log("Goal renamed successfully:", goalEdits.name)
           setEditing((prev) => {
             const newEditing = { ...prev }
             if (newEditing[categoryId]?.goals) {
@@ -418,8 +388,45 @@ export default function CategoryList() {
           })
         })
         .catch((error) => {
-          console.error("Error updating goal: ", error)
+          console.error("Error renaming goal:", error)
         })
+    }
+    // If we're just updating target or stat
+    else {
+      const updatedGoal = { ...updatedGoals[goalKey] }
+      let hasChanges = false
+
+      if (goalEdits.target) {
+        updatedGoal.targetValue = goalEdits.target
+        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
+        hasChanges = true
+      }
+
+      if (goalEdits.stat) {
+        updatedGoal.stat = goalEdits.stat
+        updatedGoal.currentValue = category.stats[goalEdits.stat] || "0"
+        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
+        hasChanges = true
+      }
+
+      if (hasChanges) {
+        updatedGoals[goalKey] = updatedGoal
+
+        updateDoc(docRef, { goals: updatedGoals })
+          .then(() => {
+            console.log("Goal updated successfully")
+            setEditing((prev) => {
+              const newEditing = { ...prev }
+              if (newEditing[categoryId]?.goals) {
+                delete newEditing[categoryId].goals[goalKey]
+              }
+              return newEditing
+            })
+          })
+          .catch((error) => {
+            console.error("Error updating goal:", error)
+          })
+      }
     }
   }
 
