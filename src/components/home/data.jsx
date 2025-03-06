@@ -104,10 +104,29 @@ export default function CategoryList() {
     const unsubscribe = onSnapshot(
       userCategoriesQuery,
       (snapshot) => {
-        const docs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        const docs = snapshot.docs.map((doc) => {
+          const data = doc.data()
+          // Create proper statsOrder and goalsOrder if they don't exist
+          const statsOrder = data.statsOrder || []
+          const goalsOrder = data.goalsOrder || []
+
+          // Make sure all stats are in the statsOrder array
+          const allStats = Object.keys(data.stats || {})
+          const missingStats = allStats.filter((stat) => !statsOrder.includes(stat))
+          const completeStatsOrder = [...statsOrder, ...missingStats]
+
+          // Make sure all goals are in the goalsOrder array
+          const allGoals = Object.keys(data.goals || {})
+          const missingGoals = allGoals.filter((goal) => !goalsOrder.includes(goal))
+          const completeGoalsOrder = [...goalsOrder, ...missingGoals]
+
+          return {
+            id: doc.id,
+            ...data,
+            statsOrder: completeStatsOrder,
+            goalsOrder: completeGoalsOrder,
+          }
+        })
         setDocuments(docs)
         setLoading(false)
       },
@@ -129,11 +148,19 @@ export default function CategoryList() {
     let updatedData = {}
 
     if (type === "stat") {
+      // Check if the stat already exists (updating) or is new (adding)
+      const isNewStat = !(data.name in category.stats)
+
       updatedData = {
         stats: {
           ...category.stats,
           [data.name]: data.value,
         },
+      }
+
+      // Add to statsOrder if it's a new stat
+      if (isNewStat) {
+        updatedData.statsOrder = [...category.statsOrder, data.name]
       }
     } else if (type === "goal") {
       const currentValue = category.stats[data.stat] || "0"
@@ -149,6 +176,11 @@ export default function CategoryList() {
           ...category.goals,
           [data.name]: newGoal,
         },
+      }
+
+      // Add to goalsOrder if it doesn't exist
+      if (!category.goalsOrder.includes(data.name)) {
+        updatedData.goalsOrder = [...category.goalsOrder, data.name]
       }
     }
 
@@ -166,6 +198,7 @@ export default function CategoryList() {
   const handleDelete = (type, categoryId, itemName) => {
     const db = getFirestore()
     const docRef = doc(db, "Category", categoryId)
+    const category = documents.find((doc) => doc.id === categoryId)
 
     if (type === "category") {
       deleteDoc(docRef)
@@ -175,6 +208,14 @@ export default function CategoryList() {
       const updatedData = {
         [`${type}s.${itemName}`]: deleteField(),
       }
+
+      // Remove from order array
+      if (type === "stat" && category.statsOrder) {
+        updatedData.statsOrder = category.statsOrder.filter((name) => name !== itemName)
+      } else if (type === "goal" && category.goalsOrder) {
+        updatedData.goalsOrder = category.goalsOrder.filter((name) => name !== itemName)
+      }
+
       updateDoc(docRef, updatedData)
         .then(() => console.log(`${type} deleted successfully`))
         .catch((error) => console.error(`Error deleting ${type}: `, error))
@@ -232,9 +273,20 @@ export default function CategoryList() {
         }
       })
 
+      // Update the statsOrder array to maintain order
+      const updatedStatsOrder = [...category.statsOrder]
+      const statIndex = updatedStatsOrder.indexOf(statKey)
+      if (statIndex !== -1) {
+        updatedStatsOrder[statIndex] = editing[categoryId][statKey].name
+      } else {
+        // If for some reason the stat isn't in the order array, add it
+        updatedStatsOrder.push(editing[categoryId][statKey].name)
+      }
+
       updateDoc(docRef, {
         stats: newStats,
         goals: updatedGoals,
+        statsOrder: updatedStatsOrder,
       })
         .then(() => {
           console.log("Stat renamed successfully")
@@ -312,6 +364,8 @@ export default function CategoryList() {
         user_id: currentUser.uid,
         stats: {},
         goals: {},
+        statsOrder: [],
+        goalsOrder: [],
       })
         .then(() => {
           console.log("New category added successfully")
@@ -375,8 +429,18 @@ export default function CategoryList() {
       delete updatedGoals[goalKey]
       updatedGoals[goalEdits.name] = updatedGoal
 
+      // Update the goalsOrder array to maintain order
+      const updatedGoalsOrder = [...category.goalsOrder]
+      const goalIndex = updatedGoalsOrder.indexOf(goalKey)
+      if (goalIndex !== -1) {
+        updatedGoalsOrder[goalIndex] = goalEdits.name
+      }
+
       // Update the entire goals object in Firestore
-      updateDoc(docRef, { goals: updatedGoals })
+      updateDoc(docRef, {
+        goals: updatedGoals,
+        goalsOrder: updatedGoalsOrder,
+      })
         .then(() => {
           console.log("Goal renamed successfully:", goalEdits.name)
           setEditing((prev) => {
@@ -503,32 +567,40 @@ export default function CategoryList() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700 mb-2">Stats</h3>
                     <ul className="space-y-2">
-                      {Object.entries(doc.stats || {}).map(([key, value]) => (
-                        <li key={key} className="flex justify-between items-center">
-                          <input
-                            type="text"
-                            value={editing[doc.id]?.[key]?.name ?? key}
-                            onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
-                            onBlur={() => handleStatUpdate(doc.id, key)}
-                            className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none"
-                          />
-                          <div className="flex items-center space-x-2">
+                      {Object.entries(doc.stats || {})
+                        .sort((a, b) => {
+                          const aIndex = doc.statsOrder ? doc.statsOrder.indexOf(a[0]) : -1
+                          const bIndex = doc.statsOrder ? doc.statsOrder.indexOf(b[0]) : -1
+                          if (aIndex === -1) return 1
+                          if (bIndex === -1) return -1
+                          return aIndex - bIndex
+                        })
+                        .map(([key, value]) => (
+                          <li key={key} className="flex justify-between items-center">
                             <input
                               type="text"
-                              value={editing[doc.id]?.[key]?.value ?? value}
-                              onChange={(e) => handleStatChange(doc.id, key, e.target.value, "value")}
+                              value={editing[doc.id]?.[key]?.name ?? key}
+                              onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
                               onBlur={() => handleStatUpdate(doc.id, key)}
-                              className="w-24 border border-gray-300 rounded-md px-2 py-1 text-right"
+                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none"
                             />
-                            <button
-                              onClick={() => showDeleteConfirmation("stat", doc.id, key)}
-                              className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </li>
-                      ))}
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="text"
+                                value={editing[doc.id]?.[key]?.value ?? value}
+                                onChange={(e) => handleStatChange(doc.id, key, e.target.value, "value")}
+                                onBlur={() => handleStatUpdate(doc.id, key)}
+                                className="w-24 border border-gray-300 rounded-md px-2 py-1 text-right"
+                              />
+                              <button
+                                onClick={() => showDeleteConfirmation("stat", doc.id, key)}
+                                className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
                     </ul>
                     <button
                       onClick={() => setModalState({ isOpen: true, type: "stat", data: { categoryId: doc.id } })}
@@ -542,6 +614,13 @@ export default function CategoryList() {
                     <ul className="space-y-4">
                       {Object.entries(doc.goals || {})
                         .filter(([_, goal]) => !hideCompletedGoals || !goal.achieved)
+                        .sort((a, b) => {
+                          const aIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(a[0]) : -1
+                          const bIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(b[0]) : -1
+                          if (aIndex === -1) return 1
+                          if (bIndex === -1) return -1
+                          return aIndex - bIndex
+                        })
                         .map(([key, goal]) => (
                           <li key={key} className="border rounded-md p-4 bg-gray-50">
                             <div className="flex justify-between items-center mb-2">
