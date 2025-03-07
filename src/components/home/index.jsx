@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/authContext"
 import CategoryList from "./data"
 import { motion } from "framer-motion"
 import { ArrowRight, BarChart2, Target, Calendar, Zap, CheckCircle } from "lucide-react"
+import { useState } from "react"
 
 const Home = () => {
   const { currentUser } = useAuth()
@@ -43,7 +44,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-sm bg-opacity-80">
+          <div className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-sm bg-opacity-80 text-center">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-800">Stats for Your Life Journey</h2>
             <p className="text-lg mb-8 text-gray-700 leading-relaxed">
               LifeStat is your all-in-one solution for tracking and understanding every quantitative aspect of your
@@ -64,7 +65,16 @@ const Home = () => {
             </div>
           </div>
         </motion.section>
-
+        <div className="flex flex-col items-center mb-8">
+  <h2 className="text-lg font-semibold mb-2 text-gray-700">LifeStat in Action!</h2>
+  <div className="flex justify-center">
+    <img 
+      src="demo.png" 
+      alt="LifeStat Preview" 
+      className="rounded-2xl shadow-lg w-auto h-[700px] drop-shadow-[0_0_20px_rgba(173,216,230,0.6)]"
+    />
+  </div>
+</div>
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,4 +122,3 @@ const Home = () => {
 }
 
 export default Home
-
