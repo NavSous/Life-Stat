@@ -551,7 +551,7 @@ function CategoryDetail() {
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4 text-red-500">{error}</div>
         <div className="text-center mt-4">
-          <Link to="/make_category" className="text-blue-500 hover:text-blue-700">
+          <Link to="/" className="text-blue-500 hover:text-blue-700">
             Back to Categories
           </Link>
         </div>
@@ -574,7 +574,7 @@ function CategoryDetail() {
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4">Category not found</div>
         <div className="text-center mt-4">
-          <Link to="/make_category" className="text-blue-500 hover:text-blue-700">
+          <Link to="/" className="text-blue-500 hover:text-blue-700">
             Back to Categories
           </Link>
         </div>
@@ -586,7 +586,7 @@ function CategoryDetail() {
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
       <div className="mb-4 sm:mb-6">
-        <Link to="/make_category" className="inline-flex items-center text-blue-500 hover:text-blue-700 py-2">
+        <Link to="/" className="inline-flex items-center text-blue-500 hover:text-blue-700 py-2">
           <ArrowLeft className="mr-2" size={16} />
           Back to Categories
         </Link>
