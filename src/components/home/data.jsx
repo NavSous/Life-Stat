@@ -555,7 +555,12 @@ export default function CategoryList() {
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-semibold text-gray-800">{doc.name}</h2>
+                  <div className="flex flex-col">
+                    <h2 className="text-2xl font-semibold text-gray-800">{doc.name}</h2>
+                    <a href={`/category/${doc.id}`} className="text-blue-500 hover:text-blue-700 text-sm mt-1">
+                      View Details
+                    </a>
+                  </div>
                   <button
                     onClick={() => showDeleteConfirmation("category", doc.id, doc.name)}
                     className="text-red-500 hover:text-red-700 transition-colors duration-200"
