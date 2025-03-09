@@ -11,17 +11,20 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
+      <div className="bg-white p-4 sm:p-6 rounded-lg max-w-md w-full mx-2">
         <h2 className="text-xl font-bold mb-4">{title}</h2>
         {children}
-        <div className="flex justify-end space-x-2 mt-4">
-          <button onClick={onClose} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+          >
             Cancel
           </button>
           <button
             type="submit"
             form="modalForm"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
           >
             Add
           </button>
@@ -36,13 +39,19 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
   if (!isOpen) return null
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
+      <div className="bg-white p-4 sm:p-6 rounded-lg max-w-md w-full mx-2">
         <p className="mb-4">{message}</p>
-        <div className="flex justify-end space-x-2">
-          <button onClick={onClose} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+          <button
+            onClick={onConfirm}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+          >
             Delete
           </button>
         </div>
@@ -103,7 +112,7 @@ const GoalForm = ({ onSubmit, stats }) => {
       <select
         value={stat}
         onChange={(e) => setStat(e.target.value)}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
+        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4 text-gray-700"
       >
         <option value="">Select a stat</option>
         {Object.keys(stats || {}).map((statName) => (
@@ -530,7 +539,7 @@ function CategoryDetail() {
   // Render loading state
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 mt-16">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4">Loading category details...</div>
       </div>
     )
@@ -539,10 +548,10 @@ function CategoryDetail() {
   // Render error state
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 mt-16">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4 text-red-500">{error}</div>
         <div className="text-center mt-4">
-          <Link to="/" className="text-blue-500 hover:text-blue-700">
+          <Link to="/make_category" className="text-blue-500 hover:text-blue-700">
             Back to Categories
           </Link>
         </div>
@@ -553,7 +562,7 @@ function CategoryDetail() {
   // Render login prompt if no user is authenticated
   if (!currentUser) {
     return (
-      <div className="container mx-auto px-4 py-8 mt-16">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4">Please log in to view category details.</div>
       </div>
     )
@@ -562,10 +571,10 @@ function CategoryDetail() {
   // Render if category is not found
   if (!category) {
     return (
-      <div className="container mx-auto px-4 py-8 mt-16">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
         <div className="text-center p-4">Category not found</div>
         <div className="text-center mt-4">
-          <Link to="/" className="text-blue-500 hover:text-blue-700">
+          <Link to="/make_category" className="text-blue-500 hover:text-blue-700">
             Back to Categories
           </Link>
         </div>
@@ -573,27 +582,28 @@ function CategoryDetail() {
     )
   }
 
+  // Update the main return statement to be more mobile-friendly
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
-      <div className="mb-6">
-        <Link to="/" className="inline-flex items-center text-blue-500 hover:text-blue-700">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
+      <div className="mb-4 sm:mb-6">
+        <Link to="/make_category" className="inline-flex items-center text-blue-500 hover:text-blue-700 py-2">
           <ArrowLeft className="mr-2" size={16} />
           Back to Categories
         </Link>
       </div>
 
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">{category.name}</h1>
+        <div className="p-4 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">{category.name}</h1>
 
           <div className="grid gap-8 md:grid-cols-2">
             {/* Stats Section */}
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Stats</h2>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-700 border-b pb-2 w-full sm:w-auto">Stats</h2>
                 <button
                   onClick={() => setModalState({ isOpen: true, type: "stat", data: {} })}
-                  className="text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                  className="text-blue-500 hover:text-blue-600 font-medium flex items-center py-1"
                 >
                   <PlusCircle size={16} className="mr-1" /> Add Stat
                 </button>
@@ -602,15 +612,18 @@ function CategoryDetail() {
               {category.statsOrder && category.statsOrder.length > 0 ? (
                 <div className="space-y-4">
                   {category.statsOrder.map((statName) => (
-                    <div key={statName} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                    <div
+                      key={statName}
+                      className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-3 bg-gray-50 rounded-md gap-2"
+                    >
                       <input
                         type="text"
                         value={editing[statName]?.name ?? statName}
                         onChange={(e) => handleStatChange(statName, e.target.value, "name")}
                         onBlur={() => handleStatUpdate(statName)}
-                        className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                        className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent w-full sm:w-auto"
                       />
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
                         <input
                           type="text"
                           value={editing[statName]?.value ?? category.stats[statName]}
@@ -620,7 +633,7 @@ function CategoryDetail() {
                         />
                         <button
                           onClick={() => showDeleteConfirmation("stat", statName)}
-                          className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                          className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -635,18 +648,18 @@ function CategoryDetail() {
 
             {/* Goals Section */}
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Goals</h2>
-                <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-700 border-b pb-2 w-full sm:w-auto">Goals</h2>
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   <button
                     onClick={() => setHideCompletedGoals(!hideCompletedGoals)}
-                    className="text-gray-600 hover:text-gray-800 font-medium text-sm"
+                    className="text-gray-600 hover:text-gray-800 font-medium text-sm py-1"
                   >
                     {hideCompletedGoals ? "Show Completed" : "Hide Completed"}
                   </button>
                   <button
                     onClick={() => setModalState({ isOpen: true, type: "goal", data: {} })}
-                    className="text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                    className="text-blue-500 hover:text-blue-600 font-medium flex items-center py-1"
                   >
                     <PlusCircle size={16} className="mr-1" /> Add Goal
                   </button>
@@ -665,30 +678,30 @@ function CategoryDetail() {
                       if (!goal) return null
 
                       return (
-                        <div key={goalName} className="border rounded-lg p-4 bg-gray-50">
-                          <div className="flex justify-between items-center mb-2">
+                        <div key={goalName} className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+                          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2 gap-2">
                             <input
                               type="text"
                               value={editing.goals?.[goalName]?.name ?? goal.name}
                               onChange={(e) => handleGoalChange(goalName, "name", e.target.value)}
                               onBlur={() => handleGoalUpdate(goalName)}
-                              className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                              className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent w-full sm:w-auto"
                             />
                             <button
                               onClick={() => showDeleteConfirmation("goal", goalName)}
-                              className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                              className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1"
                             >
                               <Trash2 size={16} />
                             </button>
                           </div>
 
-                          <div className="text-sm text-gray-600 flex items-center mb-1">
-                            <span className="mr-2">Stat:</span>
+                          <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
+                            <span className="mr-1">Stat:</span>
                             <select
                               value={editing.goals?.[goalName]?.stat ?? goal.stat}
                               onChange={(e) => handleGoalChange(goalName, "stat", e.target.value)}
                               onBlur={() => handleGoalUpdate(goalName)}
-                              className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                              className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
                             >
                               {Object.keys(category.stats || {}).map((statName) => (
                                 <option key={statName} value={statName}>
@@ -702,8 +715,8 @@ function CategoryDetail() {
                             Current: <span className="font-medium">{goal.currentValue}</span>
                           </div>
 
-                          <div className="text-sm text-gray-600 flex items-center mb-3">
-                            <span className="mr-2">Target:</span>
+                          <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
+                            <span className="mr-1">Target:</span>
                             <input
                               type="text"
                               value={editing.goals?.[goalName]?.target ?? goal.targetValue}
@@ -721,7 +734,7 @@ function CategoryDetail() {
                                   style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
                                 ></div>
                               </div>
-                              <span className="ml-2 text-sm text-gray-600">
+                              <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
                                 {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
                               </span>
                             </div>
