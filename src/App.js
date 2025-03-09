@@ -8,7 +8,7 @@ import Header from "./components/header";
 import Home from "./components/home";
 import Profile from "./components/profile/profile.jsx";
 import Privacy from "./components/p_and_t/privaterms.jsx"
-
+import CategoryDetail from "./components/detail/category_detail.jsx";
 import MakeCategory from "./components/user_content/make_category.jsx";
 
 import { AuthProvider } from "./contexts/authContext";
@@ -24,7 +24,11 @@ function App() {
       element: <Home />,
     },
     {
-      path: "privacy_policy",
+      path: "/category/:categoryId",
+      element: <CategoryDetail />
+    },
+    {
+      path: "/privacy_policy",
       element: <Privacy />
     },
     {
