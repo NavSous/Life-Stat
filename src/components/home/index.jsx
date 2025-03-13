@@ -3,7 +3,6 @@ import { useAuth } from "../../contexts/authContext"
 import CategoryList from "./data"
 import { motion } from "framer-motion"
 import { ArrowRight, BarChart2, Target, Calendar, Zap, CheckCircle } from "lucide-react"
-import { useState } from "react"
 
 const Home = () => {
   const { currentUser } = useAuth()
@@ -65,16 +64,25 @@ const Home = () => {
             </div>
           </div>
         </motion.section>
-        <div className="flex flex-col items-center mb-8">
-  <h2 className="text-lg font-semibold mb-2 text-gray-700">LifeStat in Action!</h2>
-  <div className="flex justify-center">
-    <img 
-      src="demo.png" 
-      alt="LifeStat Preview" 
-      className="rounded-2xl shadow-lg w-auto h-[700px] drop-shadow-[0_0_20px_rgba(173,216,230,0.6)]"
-    />
-  </div>
-</div>
+
+        <motion.div
+          className="flex flex-col items-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-indigo-800">LifeStat in Action!</h2>
+          <div className="w-full max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-lg">
+            <div className="relative w-full" style={{ maxHeight: "80vh" }}>
+              <img
+                src="demo.png"
+                alt="LifeStat Preview"
+                className="w-full h-auto object-contain rounded-2xl shadow-lg drop-shadow-[0_0_20px_rgba(173,216,230,0.6)]"
+              />
+            </div>
+          </div>
+        </motion.div>
+
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,3 +130,4 @@ const Home = () => {
 }
 
 export default Home
+
