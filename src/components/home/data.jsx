@@ -20,18 +20,33 @@ import { Trash2, PlusCircle, CheckCircle, XCircle, Search, EyeOff, Eye } from "l
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
-        {children}
-        <div className="flex justify-end space-x-2 mt-4">
-          <button onClick={onClose} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full shadow-2xl transform transition-all animate-slideIn">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="mb-6">
+          {children}
+        </div>
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
+          >
             Cancel
           </button>
           <button
             type="submit"
             form="modalForm"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="w-full sm:w-auto px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm"
           >
             Add
           </button>
@@ -45,14 +60,31 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
   if (!isOpen) return null
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
-        <p className="mb-4">{message}</p>
-        <div className="flex justify-end space-x-2">
-          <button onClick={onClose} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full shadow-2xl transform transition-all animate-slideIn">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Confirm Action</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+          <button
+            onClick={onConfirm}
+            className="w-full sm:w-auto px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm"
+          >
             Delete
           </button>
         </div>
@@ -518,9 +550,9 @@ export default function CategoryList() {
   // Main render
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      <h1 className="text-3xl font-bold mb-6">My Categories</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">My Categories</h1>
 
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <div className="w-full flex items-center space-x-2 bg-white rounded-md shadow-sm">
           <Search className="text-gray-400 ml-3" />
           <input
@@ -553,16 +585,16 @@ export default function CategoryList() {
       {filteredDocuments.length === 0 ? (
         <p className="text-center text-gray-500">No categories found. Try adding some!</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredDocuments.map((doc) => (
             <div
               key={doc.id}
               className="bg-white shadow-lg rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-xl"
             >
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex flex-col">
-                    <h2 className="text-2xl font-semibold text-gray-800">{doc.name}</h2>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">{doc.name}</h2>
                     <a href={`/category/${doc.id}`} className="text-blue-500 hover:text-blue-700 text-sm mt-1">
                       View Details
                     </a>
@@ -574,7 +606,7 @@ export default function CategoryList() {
                     <Trash2 size={20} />
                   </button>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700 mb-2">Stats</h3>
                     <ul className="space-y-2">
@@ -587,15 +619,15 @@ export default function CategoryList() {
                           return aIndex - bIndex
                         })
                         .map(([key, value]) => (
-                          <li key={key} className="flex justify-between items-center">
+                          <li key={key} className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center space-y-1 sm:space-y-0">
                             <input
                               type="text"
                               value={editing[doc.id]?.[key]?.name ?? key}
                               onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
                               onBlur={() => handleStatUpdate(doc.id, key)}
-                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto"
                             />
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
                               <input
                                 type="text"
                                 value={editing[doc.id]?.[key]?.value ?? value}
@@ -634,13 +666,13 @@ export default function CategoryList() {
                         })
                         .map(([key, goal]) => (
                           <li key={key} className="border rounded-md p-4 bg-gray-50">
-                            <div className="flex justify-between items-center mb-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2 gap-2">
                               <input
                                 type="text"
                                 value={editing[doc.id]?.goals?.[key]?.name ?? goal.name}
                                 onChange={(e) => handleGoalChange(doc.id, key, "name", e.target.value)}
                                 onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                                className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto"
                               />
                               <button
                                 onClick={() => showDeleteConfirmation("goal", doc.id, key)}
@@ -649,13 +681,13 @@ export default function CategoryList() {
                                 <Trash2 size={16} />
                               </button>
                             </div>
-                            <div className="text-sm text-gray-600 flex items-center">
+                            <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
                               <span className="mr-2">Stat:</span>
                               <select
                                 value={editing[doc.id]?.goals?.[key]?.stat ?? goal.stat}
                                 onChange={(e) => handleGoalChange(doc.id, key, "stat", e.target.value)}
                                 onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                                className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
                               >
                                 {Object.keys(doc.stats || {}).map((statName) => (
                                   <option key={statName} value={statName}>
@@ -665,7 +697,7 @@ export default function CategoryList() {
                               </select>
                             </div>
                             <div className="text-sm text-gray-600">Current: {goal.currentValue}</div>
-                            <div className="text-sm text-gray-600 flex items-center">
+                            <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
                               <span className="mr-2">Target:</span>
                               <input
                                 type="text"
@@ -683,7 +715,7 @@ export default function CategoryList() {
                                     style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
                                   ></div>
                                 </div>
-                                <span className="ml-2 text-sm text-gray-600">
+                                <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
                                   {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
                                 </span>
                               </div>
@@ -753,14 +785,21 @@ const CategoryForm = ({ onSubmit }) => {
         e.preventDefault()
         onSubmit(name)
       }}
+      className="space-y-4"
     >
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter category name"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
+      <div>
+        <label htmlFor="categoryName" className="block text-sm font-medium text-gray-700 mb-1">
+          Category Name
+        </label>
+        <input
+          id="categoryName"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter category name"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
     </form>
   )
 }
@@ -775,21 +814,34 @@ const StatForm = ({ onSubmit }) => {
         e.preventDefault()
         onSubmit({ name, value })
       }}
+      className="space-y-4"
     >
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter stat name"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter initial value"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
+      <div>
+        <label htmlFor="statName" className="block text-sm font-medium text-gray-700 mb-1">
+          Stat Name
+        </label>
+        <input
+          id="statName"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter stat name"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
+      <div>
+        <label htmlFor="statValue" className="block text-sm font-medium text-gray-700 mb-1">
+          Initial Value
+        </label>
+        <input
+          id="statValue"
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter initial value"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
     </form>
   )
 }
@@ -805,33 +857,52 @@ const GoalForm = ({ onSubmit, stats }) => {
         e.preventDefault()
         onSubmit({ name, stat, target })
       }}
+      className="space-y-4"
     >
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter goal name"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
-      <select
-        value={stat}
-        onChange={(e) => setStat(e.target.value)}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      >
-        <option value="">Select a stat</option>
-        {Object.keys(stats).map((statName) => (
-          <option key={statName} value={statName}>
-            {statName}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        value={target}
-        onChange={(e) => setTarget(e.target.value)}
-        placeholder="Enter target value"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
+      <div>
+        <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">
+          Goal Name
+        </label>
+        <input
+          id="goalName"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter goal name"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
+      <div>
+        <label htmlFor="goalStat" className="block text-sm font-medium text-gray-700 mb-1">
+          Associated Stat
+        </label>
+        <select
+          id="goalStat"
+          value={stat}
+          onChange={(e) => setStat(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+        >
+          <option value="">Select a stat</option>
+          {Object.keys(stats).map((statName) => (
+            <option key={statName} value={statName}>
+              {statName}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="goalTarget" className="block text-sm font-medium text-gray-700 mb-1">
+          Target Value
+        </label>
+        <input
+          id="goalTarget"
+          type="text"
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+          placeholder="Enter target value"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
     </form>
   )
 }
