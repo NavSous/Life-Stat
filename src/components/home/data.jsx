@@ -603,9 +603,9 @@ export default function CategoryList() {
         </div>
         <button
           onClick={() => setModalState({ isOpen: true, type: "category", data: {} })}
-          className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
+          className="w-full sm:w-auto bg-white hover:bg-gray-50 text-blue-500 hover:text-blue-600 font-medium py-1.5 px-3 rounded-lg flex items-center justify-center border border-blue-200 hover:border-blue-300 shadow-sm transition-all duration-200 whitespace-nowrap"
         >
-          <PlusCircle className="mr-2" size={20} />
+          <PlusCircle className="mr-1.5" size={18} />
           Add Category
         </button>
       </div>
