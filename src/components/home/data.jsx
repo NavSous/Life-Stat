@@ -61,6 +61,12 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
   )
 }
 
+// Helper function to handle comma-separated numbers
+const parseNumericValue = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.replace(/,/g, '');
+};
+
 export default function CategoryList() {
   // State variables
   const [documents, setDocuments] = useState([])
@@ -336,7 +342,7 @@ export default function CategoryList() {
         updatedGoals[goalName] = {
           ...goal,
           currentValue: newValue,
-          achieved: Number.parseFloat(newValue) >= Number.parseFloat(goal.targetValue),
+          achieved: Number.parseFloat(parseNumericValue(newValue)) >= Number.parseFloat(parseNumericValue(goal.targetValue)),
         }
       }
     })
@@ -348,8 +354,8 @@ export default function CategoryList() {
 
   // Function to calculate goal progress percentage
   const calculateGoalProgress = (currentValue, targetValue) => {
-    const current = Number.parseFloat(currentValue)
-    const target = Number.parseFloat(targetValue)
+    const current = Number.parseFloat(parseNumericValue(currentValue))
+    const target = Number.parseFloat(parseNumericValue(targetValue))
     if (isNaN(current) || isNaN(target) || target === 0) return 0
     return Math.min(Math.round((current / target) * 100), 100)
   }
@@ -413,13 +419,13 @@ export default function CategoryList() {
       // Apply any other edits to the goal
       if (goalEdits.target) {
         updatedGoal.targetValue = goalEdits.target
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(goalEdits.target))
       }
 
       if (goalEdits.stat) {
         updatedGoal.stat = goalEdits.stat
         updatedGoal.currentValue = category.stats[goalEdits.stat] || "0"
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(updatedGoal.targetValue))
       }
 
       // Update the name property
@@ -462,14 +468,14 @@ export default function CategoryList() {
 
       if (goalEdits.target) {
         updatedGoal.targetValue = goalEdits.target
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(goalEdits.target))
         hasChanges = true
       }
 
       if (goalEdits.stat) {
         updatedGoal.stat = goalEdits.stat
         updatedGoal.currentValue = category.stats[goalEdits.stat] || "0"
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(updatedGoal.targetValue))
         hasChanges = true
       }
 
