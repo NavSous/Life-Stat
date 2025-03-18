@@ -132,6 +132,12 @@ const GoalForm = ({ onSubmit, stats }) => {
   )
 }
 
+// Helper function to handle comma-separated numbers
+const parseNumericValue = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.replace(/,/g, '');
+};
+
 function CategoryDetail() {
   const { categoryId } = useParams()
   const [category, setCategory] = useState(null)
@@ -204,8 +210,8 @@ function CategoryDetail() {
 
   // Function to calculate goal progress percentage
   const calculateGoalProgress = (currentValue, targetValue) => {
-    const current = Number.parseFloat(currentValue)
-    const target = Number.parseFloat(targetValue)
+    const current = Number.parseFloat(parseNumericValue(currentValue))
+    const target = Number.parseFloat(parseNumericValue(targetValue))
     if (isNaN(current) || isNaN(target) || target === 0) return 0
     return Math.min(Math.round((current / target) * 100), 100)
   }
@@ -238,7 +244,7 @@ function CategoryDetail() {
         stat: data.stat,
         currentValue: currentValue,
         targetValue: data.target,
-        achieved: Number.parseFloat(currentValue) >= Number.parseFloat(data.target),
+        achieved: Number.parseFloat(parseNumericValue(currentValue)) >= Number.parseFloat(parseNumericValue(data.target)),
       }
       updatedData = {
         goals: {
@@ -392,7 +398,7 @@ function CategoryDetail() {
     }
   }
 
-  // Function to update goals when associated stat changes (same as in CategoryList)
+  // Function to update goals when associated stat changes
   const updateGoalsForStat = (statKey, newValue) => {
     const db = getFirestore()
     const docRef = doc(db, "Category", categoryId)
@@ -403,7 +409,7 @@ function CategoryDetail() {
         updatedGoals[goalName] = {
           ...goal,
           currentValue: newValue,
-          achieved: Number.parseFloat(newValue) >= Number.parseFloat(goal.targetValue),
+          achieved: Number.parseFloat(parseNumericValue(newValue)) >= Number.parseFloat(parseNumericValue(goal.targetValue)),
         }
       }
     })
@@ -451,13 +457,13 @@ function CategoryDetail() {
       // Apply any other edits to the goal
       if (goalEdits.target) {
         updatedGoal.targetValue = goalEdits.target
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(goalEdits.target))
       }
 
       if (goalEdits.stat) {
         updatedGoal.stat = goalEdits.stat
         updatedGoal.currentValue = (category.stats || {})[goalEdits.stat] || "0"
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(updatedGoal.targetValue))
       }
 
       // Update the name property
@@ -502,14 +508,14 @@ function CategoryDetail() {
 
       if (goalEdits.target) {
         updatedGoal.targetValue = goalEdits.target
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(goalEdits.target)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(goalEdits.target))
         hasChanges = true
       }
 
       if (goalEdits.stat) {
         updatedGoal.stat = goalEdits.stat
         updatedGoal.currentValue = (category.stats || {})[goalEdits.stat] || "0"
-        updatedGoal.achieved = Number.parseFloat(updatedGoal.currentValue) >= Number.parseFloat(updatedGoal.targetValue)
+        updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(updatedGoal.targetValue))
         hasChanges = true
       }
 
