@@ -201,13 +201,14 @@ export default function CategoryList() {
         updatedData.statsOrder = [...category.statsOrder, data.name]
       }
     } else if (type === "goal") {
-      const currentValue = category.stats[data.stat] || "0"
+      const currentValue = data.isQualitative ? false : (category.stats[data.stat] || "0")
       const newGoal = {
         name: data.name,
-        stat: data.stat,
+        isQualitative: data.isQualitative,
+        stat: data.isQualitative ? null : data.stat,
         currentValue: currentValue,
-        targetValue: data.target,
-        achieved: Number.parseFloat(currentValue) >= Number.parseFloat(data.target),
+        targetValue: data.isQualitative ? null : data.target,
+        achieved: data.isQualitative ? false : (Number.parseFloat(currentValue) >= Number.parseFloat(data.target)),
       }
       updatedData = {
         goals: {
@@ -432,6 +433,7 @@ export default function CategoryList() {
     }))
   }
 
+  // Update the handleGoalUpdate function to handle qualitative goals
   const handleGoalUpdate = (categoryId, goalKey) => {
     const db = getFirestore()
     const docRef = doc(db, "Category", categoryId)
@@ -493,7 +495,7 @@ export default function CategoryList() {
           console.error("Error renaming goal:", error)
         })
     }
-    // If we're just updating target or stat
+    // If we're just updating target, stat, or isQualitative
     else {
       const updatedGoal = { ...updatedGoals[goalKey] }
       let hasChanges = false
@@ -508,6 +510,20 @@ export default function CategoryList() {
         updatedGoal.stat = goalEdits.stat
         updatedGoal.currentValue = category.stats[goalEdits.stat] || "0"
         updatedGoal.achieved = Number.parseFloat(parseNumericValue(updatedGoal.currentValue)) >= Number.parseFloat(parseNumericValue(updatedGoal.targetValue))
+        hasChanges = true
+      }
+
+      if (goalEdits.isQualitative !== undefined) {
+        updatedGoal.isQualitative = goalEdits.isQualitative
+        updatedGoal.stat = goalEdits.isQualitative ? null : updatedGoal.stat
+        updatedGoal.targetValue = goalEdits.isQualitative ? null : updatedGoal.targetValue
+        updatedGoal.currentValue = goalEdits.isQualitative ? updatedGoal.achieved : (category.stats[updatedGoal.stat] || "0")
+        hasChanges = true
+      }
+
+      if (goalEdits.achieved !== undefined && updatedGoal.isQualitative) {
+        updatedGoal.achieved = goalEdits.achieved
+        updatedGoal.currentValue = goalEdits.achieved
         hasChanges = true
       }
 
@@ -530,6 +546,28 @@ export default function CategoryList() {
           })
       }
     }
+  }
+
+  // Add a new function to handle qualitative goal toggles
+  const handleQualitativeGoalToggle = (categoryId, goalKey, currentAchieved) => {
+    const db = getFirestore()
+    const docRef = doc(db, "Category", categoryId)
+    const category = documents.find((doc) => doc.id === categoryId)
+    const updatedGoals = { ...category.goals }
+    
+    updatedGoals[goalKey] = {
+      ...updatedGoals[goalKey],
+      achieved: !currentAchieved,
+      currentValue: !currentAchieved
+    }
+
+    updateDoc(docRef, { goals: updatedGoals })
+      .then(() => {
+        console.log("Goal toggle updated successfully")
+      })
+      .catch((error) => {
+        console.error("Error toggling goal:", error)
+      })
   }
 
   // Render loading state
@@ -609,6 +647,12 @@ export default function CategoryList() {
                 <div className="space-y-4 sm:space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700 mb-2">Stats</h3>
+                    <button
+                      onClick={() => setModalState({ isOpen: true, type: "stat", data: { categoryId: doc.id } })}
+                      className="mb-4 text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                    >
+                      <PlusCircle size={16} className="mr-1" /> Add Stat
+                    </button>
                     <ul className="space-y-2">
                       {Object.entries(doc.stats || {})
                         .sort((a, b) => {
@@ -625,7 +669,7 @@ export default function CategoryList() {
                               value={editing[doc.id]?.[key]?.name ?? key}
                               onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
                               onBlur={() => handleStatUpdate(doc.id, key)}
-                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto"
+                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto min-w-[120px] sm:min-w-[150px]"
                             />
                             <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
                               <input
@@ -645,15 +689,15 @@ export default function CategoryList() {
                           </li>
                         ))}
                     </ul>
-                    <button
-                      onClick={() => setModalState({ isOpen: true, type: "stat", data: { categoryId: doc.id } })}
-                      className="mt-2 text-blue-500 hover:text-blue-600 font-medium flex items-center"
-                    >
-                      <PlusCircle size={16} className="mr-1" /> Add Stat
-                    </button>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700 mb-2">Goals</h3>
+                    <button
+                      onClick={() => setModalState({ isOpen: true, type: "goal", data: { categoryId: doc.id } })}
+                      className="mb-4 text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                    >
+                      <PlusCircle size={16} className="mr-1" /> Add Goal
+                    </button>
                     <ul className="space-y-4">
                       {Object.entries(doc.goals || {})
                         .filter(([_, goal]) => !hideCompletedGoals || !goal.achieved)
@@ -672,7 +716,7 @@ export default function CategoryList() {
                                 value={editing[doc.id]?.goals?.[key]?.name ?? goal.name}
                                 onChange={(e) => handleGoalChange(doc.id, key, "name", e.target.value)}
                                 onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto"
+                                className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto min-w-[120px] sm:min-w-[150px]"
                               />
                               <button
                                 onClick={() => showDeleteConfirmation("goal", doc.id, key)}
@@ -681,45 +725,67 @@ export default function CategoryList() {
                                 <Trash2 size={16} />
                               </button>
                             </div>
-                            <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
-                              <span className="mr-2">Stat:</span>
-                              <select
-                                value={editing[doc.id]?.goals?.[key]?.stat ?? goal.stat}
-                                onChange={(e) => handleGoalChange(doc.id, key, "stat", e.target.value)}
-                                onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
-                              >
-                                {Object.keys(doc.stats || {}).map((statName) => (
-                                  <option key={statName} value={statName}>
-                                    {statName}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="text-sm text-gray-600">Current: {goal.currentValue}</div>
-                            <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
-                              <span className="mr-2">Target:</span>
-                              <input
-                                type="text"
-                                value={editing[doc.id]?.goals?.[key]?.target ?? goal.targetValue}
-                                onChange={(e) => handleGoalChange(doc.id, key, "target", e.target.value)}
-                                onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
-                              />
-                            </div>
-                            <div className="mt-2">
-                              <div className="flex items-center">
-                                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                  <div
-                                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                                    style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
-                                  ></div>
-                                </div>
-                                <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
-                                  {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
-                                </span>
+                            {goal.isQualitative ? (
+                              <div className="flex items-center space-x-2 mt-2">
+                                <button
+                                  onClick={() => handleQualitativeGoalToggle(doc.id, key, goal.achieved)}
+                                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200 ${
+                                    goal.achieved
+                                      ? "bg-green-500 border-green-500"
+                                      : "bg-white border-gray-300 hover:border-gray-400"
+                                  }`}
+                                >
+                                  {goal.achieved && (
+                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </button>
+                                <span className="text-sm text-gray-600">Mark as complete</span>
                               </div>
-                            </div>
+                            ) : (
+                              <>
+                                <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
+                                  <span className="mr-2">Stat:</span>
+                                  <select
+                                    value={editing[doc.id]?.goals?.[key]?.stat ?? goal.stat}
+                                    onChange={(e) => handleGoalChange(doc.id, key, "stat", e.target.value)}
+                                    onBlur={() => handleGoalUpdate(doc.id, key)}
+                                    className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
+                                  >
+                                    {Object.keys(doc.stats || {}).map((statName) => (
+                                      <option key={statName} value={statName}>
+                                        {statName}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="text-sm text-gray-600">Current: {goal.currentValue}</div>
+                                <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
+                                  <span className="mr-2">Target:</span>
+                                  <input
+                                    type="text"
+                                    value={editing[doc.id]?.goals?.[key]?.target ?? goal.targetValue}
+                                    onChange={(e) => handleGoalChange(doc.id, key, "target", e.target.value)}
+                                    onBlur={() => handleGoalUpdate(doc.id, key)}
+                                    className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                                  />
+                                </div>
+                                <div className="mt-2">
+                                  <div className="flex items-center">
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                      <div
+                                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                                        style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
+                                      {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
+                                    </span>
+                                  </div>
+                                </div>
+                              </>
+                            )}
                             <div className="mt-2">
                               {goal.achieved ? (
                                 <span className="text-green-500 flex items-center text-sm">
@@ -734,12 +800,6 @@ export default function CategoryList() {
                           </li>
                         ))}
                     </ul>
-                    <button
-                      onClick={() => setModalState({ isOpen: true, type: "goal", data: { categoryId: doc.id } })}
-                      className="mt-2 text-blue-500 hover:text-blue-600 font-medium flex items-center"
-                    >
-                      <PlusCircle size={16} className="mr-1" /> Add Goal
-                    </button>
                   </div>
                 </div>
               </div>
@@ -850,12 +910,14 @@ const GoalForm = ({ onSubmit, stats }) => {
   const [name, setName] = useState("")
   const [stat, setStat] = useState("")
   const [target, setTarget] = useState("")
+  const [isQualitative, setIsQualitative] = useState(false)
+
   return (
     <form
       id="modalForm"
       onSubmit={(e) => {
         e.preventDefault()
-        onSubmit({ name, stat, target })
+        onSubmit({ name, stat, target, isQualitative })
       }}
       className="space-y-4"
     >
@@ -872,37 +934,53 @@ const GoalForm = ({ onSubmit, stats }) => {
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
         />
       </div>
-      <div>
-        <label htmlFor="goalStat" className="block text-sm font-medium text-gray-700 mb-1">
-          Associated Stat
-        </label>
-        <select
-          id="goalStat"
-          value={stat}
-          onChange={(e) => setStat(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
-        >
-          <option value="">Select a stat</option>
-          {Object.keys(stats).map((statName) => (
-            <option key={statName} value={statName}>
-              {statName}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="goalTarget" className="block text-sm font-medium text-gray-700 mb-1">
-          Target Value
-        </label>
+      <div className="flex items-center space-x-2">
         <input
-          id="goalTarget"
-          type="text"
-          value={target}
-          onChange={(e) => setTarget(e.target.value)}
-          placeholder="Enter target value"
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          type="checkbox"
+          id="isQualitative"
+          checked={isQualitative}
+          onChange={(e) => setIsQualitative(e.target.checked)}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
+        <label htmlFor="isQualitative" className="text-sm font-medium text-gray-700">
+          This is a task-based goal (can be marked as complete/incomplete)
+        </label>
       </div>
+      {!isQualitative && (
+        <>
+          <div>
+            <label htmlFor="goalStat" className="block text-sm font-medium text-gray-700 mb-1">
+              Associated Stat
+            </label>
+            <select
+              id="goalStat"
+              value={stat}
+              onChange={(e) => setStat(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+            >
+              <option value="">Select a stat</option>
+              {Object.keys(stats).map((statName) => (
+                <option key={statName} value={statName}>
+                  {statName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="goalTarget" className="block text-sm font-medium text-gray-700 mb-1">
+              Target Value
+            </label>
+            <input
+              id="goalTarget"
+              type="text"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder="Enter target value"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            />
+          </div>
+        </>
+      )}
     </form>
   )
 }
