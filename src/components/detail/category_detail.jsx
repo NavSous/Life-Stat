@@ -10,21 +10,33 @@ import { ArrowLeft, CheckCircle, XCircle, PlusCircle, Trash2 } from "lucide-reac
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 sm:p-6 rounded-lg max-w-md w-full mx-2">
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
-        {children}
-        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full shadow-2xl transform transition-all animate-slideIn">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
           <button
             onClick={onClose}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="mb-6">
+          {children}
+        </div>
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             type="submit"
             form="modalForm"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+            className="w-full sm:w-auto px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm"
           >
             Add
           </button>
@@ -38,19 +50,30 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
   if (!isOpen) return null
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 sm:p-6 rounded-lg max-w-md w-full mx-2">
-        <p className="mb-4">{message}</p>
-        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full shadow-2xl transform transition-all animate-slideIn">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Confirm Action</h2>
           <button
             onClick={onClose}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+            className="w-full sm:w-auto px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm"
           >
             Delete
           </button>
@@ -94,40 +117,77 @@ const GoalForm = ({ onSubmit, stats }) => {
   const [name, setName] = useState("")
   const [stat, setStat] = useState("")
   const [target, setTarget] = useState("")
+  const [isQualitative, setIsQualitative] = useState(false)
+
   return (
     <form
       id="modalForm"
       onSubmit={(e) => {
         e.preventDefault()
-        onSubmit({ name, stat, target })
+        onSubmit({ name, stat, target, isQualitative })
       }}
+      className="space-y-4"
     >
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter goal name"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
-      <select
-        value={stat}
-        onChange={(e) => setStat(e.target.value)}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4 text-gray-700"
-      >
-        <option value="">Select a stat</option>
-        {Object.keys(stats || {}).map((statName) => (
-          <option key={statName} value={statName}>
-            {statName}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        value={target}
-        onChange={(e) => setTarget(e.target.value)}
-        placeholder="Enter target value"
-        className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4"
-      />
+      <div>
+        <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">
+          Goal Name
+        </label>
+        <input
+          id="goalName"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter goal name"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="isQualitative"
+          checked={isQualitative}
+          onChange={(e) => setIsQualitative(e.target.checked)}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+        <label htmlFor="isQualitative" className="text-sm font-medium text-gray-700">
+          This is a task-based goal (can be marked as complete/incomplete)
+        </label>
+      </div>
+      {!isQualitative && (
+        <>
+          <div>
+            <label htmlFor="goalStat" className="block text-sm font-medium text-gray-700 mb-1">
+              Associated Stat
+            </label>
+            <select
+              id="goalStat"
+              value={stat}
+              onChange={(e) => setStat(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+            >
+              <option value="">Select a stat</option>
+              {Object.keys(stats).map((statName) => (
+                <option key={statName} value={statName}>
+                  {statName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="goalTarget" className="block text-sm font-medium text-gray-700 mb-1">
+              Target Value
+            </label>
+            <input
+              id="goalTarget"
+              type="text"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder="Enter target value"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            />
+          </div>
+        </>
+      )}
     </form>
   )
 }
@@ -238,13 +298,14 @@ function CategoryDetail() {
         updatedData.statsOrder = [...(category.statsOrder || []), data.name]
       }
     } else if (type === "goal") {
-      const currentValue = (category.stats || {})[data.stat] || "0"
+      const currentValue = data.isQualitative ? false : ((category.stats || {})[data.stat] || "0")
       const newGoal = {
         name: data.name,
-        stat: data.stat,
+        isQualitative: data.isQualitative,
+        stat: data.isQualitative ? null : data.stat,
         currentValue: currentValue,
-        targetValue: data.target,
-        achieved: Number.parseFloat(parseNumericValue(currentValue)) >= Number.parseFloat(parseNumericValue(data.target)),
+        targetValue: data.isQualitative ? null : data.target,
+        achieved: data.isQualitative ? false : (Number.parseFloat(parseNumericValue(currentValue)) >= Number.parseFloat(parseNumericValue(data.target))),
       }
       updatedData = {
         goals: {
@@ -542,6 +603,29 @@ function CategoryDetail() {
     }
   }
 
+  // Add handleQualitativeGoalToggle function after handleGoalUpdate
+  const handleQualitativeGoalToggle = (goalKey, currentAchieved) => {
+    const db = getFirestore()
+    const docRef = doc(db, "Category", categoryId)
+    const updatedGoals = { ...(category.goals || {}) }
+    
+    updatedGoals[goalKey] = {
+      ...updatedGoals[goalKey],
+      achieved: !currentAchieved,
+      currentValue: !currentAchieved
+    }
+
+    updateDoc(docRef, { goals: updatedGoals })
+      .then(() => {
+        console.log("Goal toggle updated successfully")
+        // Refresh category data
+        fetchCategoryDetails(categoryId)
+      })
+      .catch((error) => {
+        console.error("Error toggling goal:", error)
+      })
+  }
+
   // Render loading state
   if (loading) {
     return (
@@ -701,50 +785,72 @@ function CategoryDetail() {
                             </button>
                           </div>
 
-                          <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
-                            <span className="mr-1">Stat:</span>
-                            <select
-                              value={editing.goals?.[goalName]?.stat ?? goal.stat}
-                              onChange={(e) => handleGoalChange(goalName, "stat", e.target.value)}
-                              onBlur={() => handleGoalUpdate(goalName)}
-                              className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
-                            >
-                              {Object.keys(category.stats || {}).map((statName) => (
-                                <option key={statName} value={statName}>
-                                  {statName}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className="text-sm text-gray-600 mb-1">
-                            Current: <span className="font-medium">{goal.currentValue}</span>
-                          </div>
-
-                          <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
-                            <span className="mr-1">Target:</span>
-                            <input
-                              type="text"
-                              value={editing.goals?.[goalName]?.target ?? goal.targetValue}
-                              onChange={(e) => handleGoalChange(goalName, "target", e.target.value)}
-                              onBlur={() => handleGoalUpdate(goalName)}
-                              className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
-                            />
-                          </div>
-
-                          <div className="mt-2">
-                            <div className="flex items-center">
-                              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                <div
-                                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                                  style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
-                                ></div>
-                              </div>
-                              <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
-                                {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
-                              </span>
+                          {goal.isQualitative ? (
+                            <div className="flex items-center space-x-2 mt-2">
+                              <button
+                                onClick={() => handleQualitativeGoalToggle(goalName, goal.achieved)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200 ${
+                                  goal.achieved
+                                    ? "bg-green-500 border-green-500"
+                                    : "bg-white border-gray-300 hover:border-gray-400"
+                                }`}
+                              >
+                                {goal.achieved && (
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </button>
+                              <span className="text-sm text-gray-600">Mark as complete</span>
                             </div>
-                          </div>
+                          ) : (
+                            <>
+                              <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
+                                <span className="mr-1">Stat:</span>
+                                <select
+                                  value={editing.goals?.[goalName]?.stat ?? goal.stat}
+                                  onChange={(e) => handleGoalChange(goalName, "stat", e.target.value)}
+                                  onBlur={() => handleGoalUpdate(goalName)}
+                                  className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
+                                >
+                                  {Object.keys(category.stats || {}).map((statName) => (
+                                    <option key={statName} value={statName}>
+                                      {statName}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div className="text-sm text-gray-600 mb-1">
+                                Current: <span className="font-medium">{goal.currentValue}</span>
+                              </div>
+
+                              <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
+                                <span className="mr-1">Target:</span>
+                                <input
+                                  type="text"
+                                  value={editing.goals?.[goalName]?.target ?? goal.targetValue}
+                                  onChange={(e) => handleGoalChange(goalName, "target", e.target.value)}
+                                  onBlur={() => handleGoalUpdate(goalName)}
+                                  className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                                />
+                              </div>
+
+                              <div className="mt-2">
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                                      style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
+                                    {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </>
+                          )}
 
                           <div className="mt-2">
                             {goal.achieved ? (
