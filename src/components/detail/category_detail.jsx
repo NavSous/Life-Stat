@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { getFirestore, doc, getDoc, updateDoc, deleteField } from "firebase/firestore"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
-import { ArrowLeft, CheckCircle, XCircle, PlusCircle, Trash2 } from "lucide-react"
+import { ArrowLeft, CheckCircle, XCircle, PlusCircle, Trash2, Eye, EyeOff } from "lucide-react"
 
 // Modal component (same as in CategoryList)
 const Modal = ({ isOpen, onClose, title, children }) => {
@@ -297,6 +297,13 @@ function CategoryDetail() {
       if (isNewStat) {
         updatedData.statsOrder = [...(category.statsOrder || []), data.name]
       }
+
+      // Update local state immediately
+      setCategory(prev => ({
+        ...prev,
+        stats: updatedData.stats,
+        statsOrder: updatedData.statsOrder || prev.statsOrder
+      }))
     } else if (type === "goal") {
       const currentValue = data.isQualitative ? false : ((category.stats || {})[data.stat] || "0")
       const newGoal = {
@@ -318,21 +325,29 @@ function CategoryDetail() {
       if (!category.goalsOrder.includes(data.name)) {
         updatedData.goalsOrder = [...(category.goalsOrder || []), data.name]
       }
+
+      // Update local state immediately
+      setCategory(prev => ({
+        ...prev,
+        goals: updatedData.goals,
+        goalsOrder: updatedData.goalsOrder || prev.goalsOrder
+      }))
     }
 
+    // Update Firestore
     updateDoc(docRef, updatedData)
       .then(() => {
         console.log(`${type} added/updated successfully`)
         setModalState({ isOpen: false, type: null, data: {} })
-        // Refresh category data
-        fetchCategoryDetails(categoryId)
       })
       .catch((error) => {
         console.error(`Error adding/updating ${type}: `, error)
+        // Revert local state on error
+        fetchCategoryDetails(categoryId)
       })
   }
 
-  // Function to handle deleting a stat or goal (same as in CategoryList)
+  // Function to handle deleting a stat or goal
   const handleDelete = (type, itemName) => {
     const db = getFirestore()
     const docRef = doc(db, "Category", categoryId)
@@ -347,14 +362,29 @@ function CategoryDetail() {
       updatedData.goalsOrder = category.goalsOrder.filter((name) => name !== itemName)
     }
 
+    // Update local state immediately
+    setCategory(prev => {
+      const newCategory = { ...prev }
+      if (type === "stat") {
+        delete newCategory.stats[itemName]
+        newCategory.statsOrder = updatedData.statsOrder
+      } else if (type === "goal") {
+        delete newCategory.goals[itemName]
+        newCategory.goalsOrder = updatedData.goalsOrder
+      }
+      return newCategory
+    })
+
+    // Update Firestore
     updateDoc(docRef, updatedData)
       .then(() => {
         console.log(`${type} deleted successfully`)
-        // Refresh category data
-        fetchCategoryDetails(categoryId)
+        setConfirmDialog({ isOpen: false, message: "", onConfirm: null })
       })
       .catch((error) => {
         console.error(`Error deleting ${type}: `, error)
+        // Revert local state on error
+        fetchCategoryDetails(categoryId)
       })
   }
 
@@ -410,11 +440,17 @@ function CategoryDetail() {
       const statIndex = updatedStatsOrder.indexOf(statKey)
       if (statIndex !== -1) {
         updatedStatsOrder[statIndex] = editing[statKey].name
-      } else {
-        // If for some reason the stat isn't in the order array, add it
-        updatedStatsOrder.push(editing[statKey].name)
       }
 
+      // Update local state immediately
+      setCategory(prev => ({
+        ...prev,
+        stats: newStats,
+        goals: updatedGoals,
+        statsOrder: updatedStatsOrder
+      }))
+
+      // Update Firestore
       updateDoc(docRef, {
         stats: newStats,
         goals: updatedGoals,
@@ -427,11 +463,11 @@ function CategoryDetail() {
             delete newEditing[statKey]
             return newEditing
           })
-          // Refresh category data
-          fetchCategoryDetails(categoryId)
         })
         .catch((error) => {
           console.error("Error renaming stat: ", error)
+          // Revert local state on error
+          fetchCategoryDetails(categoryId)
         })
     }
     // If we're just updating the value
@@ -442,6 +478,14 @@ function CategoryDetail() {
           [statKey]: editing[statKey].value,
         },
       }
+
+      // Update local state immediately
+      setCategory(prev => ({
+        ...prev,
+        stats: updatedData.stats
+      }))
+
+      // Update Firestore
       updateDoc(docRef, updatedData)
         .then(() => {
           console.log("Stat value updated successfully")
@@ -455,6 +499,8 @@ function CategoryDetail() {
         })
         .catch((error) => {
           console.error("Error updating stat value: ", error)
+          // Revert local state on error
+          fetchCategoryDetails(categoryId)
         })
     }
   }
@@ -475,14 +521,21 @@ function CategoryDetail() {
       }
     })
 
+    // Update local state immediately
+    setCategory(prev => ({
+      ...prev,
+      goals: updatedGoals
+    }))
+
+    // Update Firestore
     updateDoc(docRef, { goals: updatedGoals })
       .then(() => {
         console.log("Goals updated successfully")
-        // Refresh category data
-        fetchCategoryDetails(categoryId)
       })
       .catch((error) => {
         console.error("Error updating goals: ", error)
+        // Revert local state on error
+        fetchCategoryDetails(categoryId)
       })
   }
 
@@ -541,7 +594,14 @@ function CategoryDetail() {
         updatedGoalsOrder[goalIndex] = goalEdits.name
       }
 
-      // Update the entire goals object in Firestore
+      // Update local state immediately
+      setCategory(prev => ({
+        ...prev,
+        goals: updatedGoals,
+        goalsOrder: updatedGoalsOrder
+      }))
+
+      // Update Firestore
       updateDoc(docRef, {
         goals: updatedGoals,
         goalsOrder: updatedGoalsOrder,
@@ -555,11 +615,11 @@ function CategoryDetail() {
             }
             return newEditing
           })
-          // Refresh category data
-          fetchCategoryDetails(categoryId)
         })
         .catch((error) => {
           console.error("Error renaming goal:", error)
+          // Revert local state on error
+          fetchCategoryDetails(categoryId)
         })
     }
     // If we're just updating target or stat
@@ -583,6 +643,13 @@ function CategoryDetail() {
       if (hasChanges) {
         updatedGoals[goalKey] = updatedGoal
 
+        // Update local state immediately
+        setCategory(prev => ({
+          ...prev,
+          goals: updatedGoals
+        }))
+
+        // Update Firestore
         updateDoc(docRef, { goals: updatedGoals })
           .then(() => {
             console.log("Goal updated successfully")
@@ -593,17 +660,17 @@ function CategoryDetail() {
               }
               return newEditing
             })
-            // Refresh category data
-            fetchCategoryDetails(categoryId)
           })
           .catch((error) => {
             console.error("Error updating goal:", error)
+            // Revert local state on error
+            fetchCategoryDetails(categoryId)
           })
       }
     }
   }
 
-  // Add handleQualitativeGoalToggle function after handleGoalUpdate
+  // Update handleQualitativeGoalToggle to avoid page refresh
   const handleQualitativeGoalToggle = (goalKey, currentAchieved) => {
     const db = getFirestore()
     const docRef = doc(db, "Category", categoryId)
@@ -615,14 +682,21 @@ function CategoryDetail() {
       currentValue: !currentAchieved
     }
 
+    // Update local state immediately
+    setCategory(prev => ({
+      ...prev,
+      goals: updatedGoals
+    }))
+
+    // Update Firestore
     updateDoc(docRef, { goals: updatedGoals })
       .then(() => {
         console.log("Goal toggle updated successfully")
-        // Refresh category data
-        fetchCategoryDetails(categoryId)
       })
       .catch((error) => {
         console.error("Error toggling goal:", error)
+        // Revert local state on error
+        fetchCategoryDetails(categoryId)
       })
   }
 
@@ -672,58 +746,61 @@ function CategoryDetail() {
     )
   }
 
-  // Update the main return statement to be more mobile-friendly
+  // Update the main return statement to add more padding to the header
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 mt-16">
-      <div className="mb-4 sm:mb-6">
-        <Link to="/" className="inline-flex items-center text-blue-500 hover:text-blue-700 py-2">
-          <ArrowLeft className="mr-2" size={16} />
-          Back to Categories
-        </Link>
-      </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="flex flex-col space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 pt-8">
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+              <ArrowLeft size={24} />
+            </Link>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {category.name}
+            </h1>
+          </div>
+        </div>
 
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="p-4 sm:p-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">{category.name}</h1>
-
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Stats Section */}
-            <div>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-700 border-b pb-2 w-full sm:w-auto">Stats</h2>
+        {/* Main Content */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Stats Section */}
+          <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-800">Stats</h2>
                 <button
                   onClick={() => setModalState({ isOpen: true, type: "stat", data: {} })}
-                  className="text-blue-500 hover:text-blue-600 font-medium flex items-center py-1"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
                 >
-                  <PlusCircle size={16} className="mr-1" /> Add Stat
+                  <PlusCircle size={16} className="mr-1" />
+                  Add Stat
                 </button>
               </div>
-
+            </div>
+            <div className="p-6">
               {category.statsOrder && category.statsOrder.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {category.statsOrder.map((statName) => (
-                    <div
-                      key={statName}
-                      className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-3 bg-gray-50 rounded-md gap-2"
-                    >
+                    <div key={statName} className="flex items-center justify-between group">
                       <input
                         type="text"
                         value={editing[statName]?.name ?? statName}
                         onChange={(e) => handleStatChange(statName, e.target.value, "name")}
                         onBlur={() => handleStatUpdate(statName)}
-                        className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent w-full sm:w-auto"
+                        className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none flex-1 mr-2"
                       />
-                      <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
+                      <div className="flex items-center space-x-2">
                         <input
                           type="text"
                           value={editing[statName]?.value ?? category.stats[statName]}
                           onChange={(e) => handleStatChange(statName, e.target.value, "value")}
                           onBlur={() => handleStatUpdate(statName)}
-                          className="w-24 border border-gray-300 rounded-md px-2 py-1 text-right"
+                          className="w-24 border border-gray-200 rounded-md px-2 py-1 text-right focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         <button
                           onClick={() => showDeleteConfirmation("stat", statName)}
-                          className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1"
+                          className="text-gray-400 hover:text-red-500 transition-colors duration-200 opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -732,32 +809,52 @@ function CategoryDetail() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 italic">No stats available</p>
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mb-3">
+                    <PlusCircle className="text-blue-500" size={24} />
+                  </div>
+                  <p className="text-gray-500">No stats available</p>
+                  <p className="text-gray-400 text-sm mt-1">Add your first stat to get started!</p>
+                </div>
               )}
             </div>
+          </div>
 
-            {/* Goals Section */}
-            <div>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-700 border-b pb-2 w-full sm:w-auto">Goals</h2>
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          {/* Goals Section */}
+          <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-800">Goals</h2>
+                <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setHideCompletedGoals(!hideCompletedGoals)}
-                    className="text-gray-600 hover:text-gray-800 font-medium text-sm py-1"
+                    className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center"
                   >
-                    {hideCompletedGoals ? "Show Completed" : "Hide Completed"}
+                    {hideCompletedGoals ? (
+                      <>
+                        <Eye className="mr-1" size={16} />
+                        Show Completed
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="mr-1" size={16} />
+                        Hide Completed
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => setModalState({ isOpen: true, type: "goal", data: {} })}
-                    className="text-blue-500 hover:text-blue-600 font-medium flex items-center py-1"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
                   >
-                    <PlusCircle size={16} className="mr-1" /> Add Goal
+                    <PlusCircle size={16} className="mr-1" />
+                    Add Goal
                   </button>
                 </div>
               </div>
-
+            </div>
+            <div className="p-6">
               {category.goalsOrder && category.goalsOrder.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {category.goalsOrder
                     .filter((goalName) => {
                       const goal = category.goals[goalName]
@@ -768,25 +865,34 @@ function CategoryDetail() {
                       if (!goal) return null
 
                       return (
-                        <div key={goalName} className="border rounded-lg p-3 sm:p-4 bg-gray-50">
-                          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2 gap-2">
+                        <div 
+                          key={goalName} 
+                          className={`bg-gray-50 rounded-lg p-4 shadow-sm ${
+                            goal.achieved 
+                              ? 'border-2 border-green-200 bg-green-50' 
+                              : 'border border-gray-100'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start mb-3">
                             <input
                               type="text"
                               value={editing.goals?.[goalName]?.name ?? goal.name}
                               onChange={(e) => handleGoalChange(goalName, "name", e.target.value)}
                               onBlur={() => handleGoalUpdate(goalName)}
-                              className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent w-full sm:w-auto"
+                              className={`font-medium border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none flex-1 mr-2 ${
+                                goal.achieved ? 'text-green-700' : 'text-gray-700'
+                              }`}
                             />
                             <button
                               onClick={() => showDeleteConfirmation("goal", goalName)}
-                              className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1"
+                              className="text-gray-400 hover:text-red-500 transition-colors duration-200"
                             >
                               <Trash2 size={16} />
                             </button>
                           </div>
 
                           {goal.isQualitative ? (
-                            <div className="flex items-center space-x-2 mt-2">
+                            <div className="flex items-center space-x-2">
                               <button
                                 onClick={() => handleQualitativeGoalToggle(goalName, goal.achieved)}
                                 className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200 ${
@@ -801,17 +907,21 @@ function CategoryDetail() {
                                   </svg>
                                 )}
                               </button>
-                              <span className="text-sm text-gray-600">Mark as complete</span>
+                              <span className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-600'}`}>
+                                Mark as complete
+                              </span>
                             </div>
                           ) : (
                             <>
-                              <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
-                                <span className="mr-1">Stat:</span>
+                              <div className="flex items-center space-x-2 mb-2">
+                                <span className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>Stat:</span>
                                 <select
                                   value={editing.goals?.[goalName]?.stat ?? goal.stat}
                                   onChange={(e) => handleGoalChange(goalName, "stat", e.target.value)}
                                   onBlur={() => handleGoalUpdate(goalName)}
-                                  className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
+                                  className={`text-sm border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent ${
+                                    goal.achieved ? 'text-green-700' : ''
+                                  }`}
                                 >
                                   {Object.keys(category.stats || {}).map((statName) => (
                                     <option key={statName} value={statName}>
@@ -820,80 +930,90 @@ function CategoryDetail() {
                                   ))}
                                 </select>
                               </div>
-
-                              <div className="text-sm text-gray-600 mb-1">
-                                Current: <span className="font-medium">{goal.currentValue}</span>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  Current: {goal.currentValue}
+                                </div>
+                                <div className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  Target:{" "}
+                                  <input
+                                    type="text"
+                                    value={editing.goals?.[goalName]?.target ?? goal.targetValue}
+                                    onChange={(e) => handleGoalChange(goalName, "target", e.target.value)}
+                                    onBlur={() => handleGoalUpdate(goalName)}
+                                    className={`w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent text-right ${
+                                      goal.achieved ? 'text-green-700' : ''
+                                    }`}
+                                  />
+                                </div>
                               </div>
-
-                              <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
-                                <span className="mr-1">Target:</span>
-                                <input
-                                  type="text"
-                                  value={editing.goals?.[goalName]?.target ?? goal.targetValue}
-                                  onChange={(e) => handleGoalChange(goalName, "target", e.target.value)}
-                                  onBlur={() => handleGoalUpdate(goalName)}
-                                  className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
-                                />
-                              </div>
-
-                              <div className="mt-2">
+                              <div className="space-y-1">
                                 <div className="flex items-center">
-                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
-                                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                                      className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                                        goal.achieved ? 'bg-green-500' : 'bg-blue-600'
+                                      }`}
                                       style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
                                     ></div>
                                   </div>
-                                  <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
+                                  <span className={`ml-2 text-sm whitespace-nowrap ${
+                                    goal.achieved ? 'text-green-600' : 'text-gray-500'
+                                  }`}>
                                     {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
                                   </span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  {goal.achieved ? (
+                                    <span className="text-green-500 flex items-center font-medium">
+                                      <CheckCircle size={16} className="mr-1" />
+                                      Goal Achieved
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500 flex items-center">
+                                      Not Achieved <XCircle size={16} className="ml-1" />
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </>
                           )}
-
-                          <div className="mt-2">
-                            {goal.achieved ? (
-                              <span className="text-green-500 flex items-center text-sm">
-                                Achieved <CheckCircle size={16} className="ml-1" />
-                              </span>
-                            ) : (
-                              <span className="text-red-500 flex items-center text-sm">
-                                Not Achieved <XCircle size={16} className="ml-1" />
-                              </span>
-                            )}
-                          </div>
                         </div>
                       )
                     })}
                 </div>
               ) : (
-                <p className="text-gray-500 italic">No goals available</p>
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mb-3">
+                    <PlusCircle className="text-blue-500" size={24} />
+                  </div>
+                  <p className="text-gray-500">No goals available</p>
+                  <p className="text-gray-400 text-sm mt-1">Add your first goal to get started!</p>
+                </div>
               )}
             </div>
           </div>
         </div>
+
+        {/* Modals */}
+        <Modal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, type: null, data: {} })}
+          title={`Add New ${modalState.type === "stat" ? "Stat" : "Goal"}`}
+        >
+          {modalState.type === "stat" && <StatForm onSubmit={(data) => handleAddOrUpdate("stat", data)} />}
+          {modalState.type === "goal" && (
+            <GoalForm onSubmit={(data) => handleAddOrUpdate("goal", data)} stats={category?.stats || {}} />
+          )}
+        </Modal>
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
+          onConfirm={confirmDialog.onConfirm}
+          message={confirmDialog.message}
+        />
       </div>
-
-      {/* Modal for adding stats and goals */}
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState({ isOpen: false, type: null, data: {} })}
-        title={`Add New ${modalState.type === "stat" ? "Stat" : "Goal"}`}
-      >
-        {modalState.type === "stat" && <StatForm onSubmit={(data) => handleAddOrUpdate("stat", data)} />}
-        {modalState.type === "goal" && (
-          <GoalForm onSubmit={(data) => handleAddOrUpdate("goal", data)} stats={category?.stats || {}} />
-        )}
-      </Modal>
-
-      {/* Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
-        onConfirm={confirmDialog.onConfirm}
-        message={confirmDialog.message}
-      />
     </div>
   )
 }
