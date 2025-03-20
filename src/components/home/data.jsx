@@ -587,250 +587,313 @@ export default function CategoryList() {
 
   // Main render
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">My Categories</h1>
-
-      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="w-full flex items-center space-x-2 bg-white rounded-md shadow-sm">
-          <Search className="text-gray-400 ml-3" />
-          <input
-            type="text"
-            placeholder="Search categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 focus:outline-none"
-          />
-        </div>
-        <button
-          onClick={() => setModalState({ isOpen: true, type: "category", data: {} })}
-          className="w-full sm:w-auto bg-white hover:bg-gray-50 text-blue-500 hover:text-blue-600 font-medium py-1.5 px-3 rounded-lg flex items-center justify-center border border-blue-200 hover:border-blue-300 shadow-sm transition-all duration-200 whitespace-nowrap"
-        >
-          <PlusCircle className="mr-1.5" size={18} />
-          Add Category
-        </button>
-      </div>
-
-      <div className="mb-4 flex justify-between items-center">
-        <button
-          onClick={() => setHideCompletedGoals(!hideCompletedGoals)}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center"
-        >
-          {hideCompletedGoals ? <Eye className="mr-2" size={20} /> : <EyeOff className="mr-2" size={20} />}
-          {hideCompletedGoals ? "Show Completed Goals" : "Hide Completed Goals"}
-        </button>
-      </div>
-
-      {filteredDocuments.length === 0 ? (
-        <p className="text-center text-gray-500">No categories found. Try adding some!</p>
-      ) : (
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredDocuments.map((doc) => (
-            <div
-              key={doc.id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-xl"
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="flex flex-col space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            My Categories
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+            <button
+              onClick={() => setModalState({ isOpen: true, type: "category", data: {} })}
+              className="w-full sm:w-auto bg-white hover:bg-gray-50 text-blue-600 hover:text-blue-700 font-medium py-2.5 px-4 rounded-lg flex items-center justify-center border border-blue-200 hover:border-blue-300 shadow-sm transition-all duration-200"
             >
-              <div className="p-4 sm:p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex flex-col">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">{doc.name}</h2>
-                    <a href={`/category/${doc.id}`} className="text-blue-500 hover:text-blue-700 text-sm mt-1">
-                      View Details
-                    </a>
+              <PlusCircle className="mr-2" size={20} />
+              Add Category
+            </button>
+          </div>
+        </div>
+
+        {/* Controls Section */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setHideCompletedGoals(!hideCompletedGoals)}
+            className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+          >
+            {hideCompletedGoals ? (
+              <>
+                <Eye className="mr-2" size={18} />
+                Show Completed
+              </>
+            ) : (
+              <>
+                <EyeOff className="mr-2" size={18} />
+                Hide Completed
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Categories Grid */}
+        {filteredDocuments.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 mb-4">
+              <PlusCircle className="text-blue-500" size={32} />
+            </div>
+            <p className="text-gray-500 text-lg">No categories found</p>
+            <p className="text-gray-400 text-sm mt-2">Try adding your first category to get started!</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100"
+              >
+                {/* Category Header */}
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800 mb-1">{doc.name}</h2>
+                      <a 
+                        href={`/category/${doc.id}`} 
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center"
+                      >
+                        View Details
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+                    </div>
+                    <button
+                      onClick={() => showDeleteConfirmation("category", doc.id, doc.name)}
+                      className="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => showDeleteConfirmation("category", doc.id, doc.name)}
-                    className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                  >
-                    <Trash2 size={20} />
-                  </button>
                 </div>
-                <div className="space-y-4 sm:space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Stats</h3>
+
+                {/* Stats Section */}
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-700">Stats</h3>
                     <button
                       onClick={() => setModalState({ isOpen: true, type: "stat", data: { categoryId: doc.id } })}
-                      className="mb-4 text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
                     >
-                      <PlusCircle size={16} className="mr-1" /> Add Stat
+                      <PlusCircle size={16} className="mr-1" />
+                      Add Stat
                     </button>
-                    <ul className="space-y-2">
-                      {Object.entries(doc.stats || {})
-                        .sort((a, b) => {
-                          const aIndex = doc.statsOrder ? doc.statsOrder.indexOf(a[0]) : -1
-                          const bIndex = doc.statsOrder ? doc.statsOrder.indexOf(b[0]) : -1
-                          if (aIndex === -1) return 1
-                          if (bIndex === -1) return -1
-                          return aIndex - bIndex
-                        })
-                        .map(([key, value]) => (
-                          <li key={key} className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center space-y-1 sm:space-y-0">
+                  </div>
+                  <div className="space-y-3">
+                    {Object.entries(doc.stats || {})
+                      .sort((a, b) => {
+                        const aIndex = doc.statsOrder ? doc.statsOrder.indexOf(a[0]) : -1
+                        const bIndex = doc.statsOrder ? doc.statsOrder.indexOf(b[0]) : -1
+                        if (aIndex === -1) return 1
+                        if (bIndex === -1) return -1
+                        return aIndex - bIndex
+                      })
+                      .map(([key, value]) => (
+                        <div key={key} className="flex items-center justify-between group">
+                          <input
+                            type="text"
+                            value={editing[doc.id]?.[key]?.name ?? key}
+                            onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
+                            onBlur={() => handleStatUpdate(doc.id, key)}
+                            className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none flex-1 mr-2"
+                          />
+                          <div className="flex items-center space-x-2">
                             <input
                               type="text"
-                              value={editing[doc.id]?.[key]?.name ?? key}
-                              onChange={(e) => handleStatChange(doc.id, key, e.target.value, "name")}
+                              value={editing[doc.id]?.[key]?.value ?? value}
+                              onChange={(e) => handleStatChange(doc.id, key, e.target.value, "value")}
                               onBlur={() => handleStatUpdate(doc.id, key)}
-                              className="font-medium text-gray-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto min-w-[120px] sm:min-w-[150px]"
+                              className="w-24 border border-gray-200 rounded-md px-2 py-1 text-right focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
-                            <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
-                              <input
-                                type="text"
-                                value={editing[doc.id]?.[key]?.value ?? value}
-                                onChange={(e) => handleStatChange(doc.id, key, e.target.value, "value")}
-                                onBlur={() => handleStatUpdate(doc.id, key)}
-                                className="w-24 border border-gray-300 rounded-md px-2 py-1 text-right"
-                              />
-                              <button
-                                onClick={() => showDeleteConfirmation("stat", doc.id, key)}
-                                className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </li>
-                        ))}
-                    </ul>
+                            <button
+                              onClick={() => showDeleteConfirmation("stat", doc.id, key)}
+                              className="text-gray-400 hover:text-red-500 transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Goals</h3>
+                </div>
+
+                {/* Goals Section */}
+                <div className="p-6 bg-gray-50 rounded-b-xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-700">Goals</h3>
                     <button
                       onClick={() => setModalState({ isOpen: true, type: "goal", data: { categoryId: doc.id } })}
-                      className="mb-4 text-blue-500 hover:text-blue-600 font-medium flex items-center"
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
                     >
-                      <PlusCircle size={16} className="mr-1" /> Add Goal
+                      <PlusCircle size={16} className="mr-1" />
+                      Add Goal
                     </button>
-                    <ul className="space-y-4">
-                      {Object.entries(doc.goals || {})
-                        .filter(([_, goal]) => !hideCompletedGoals || !goal.achieved)
-                        .sort((a, b) => {
-                          const aIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(a[0]) : -1
-                          const bIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(b[0]) : -1
-                          if (aIndex === -1) return 1
-                          if (bIndex === -1) return -1
-                          return aIndex - bIndex
-                        })
-                        .map(([key, goal]) => (
-                          <li key={key} className="border rounded-md p-4 bg-gray-50">
-                            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2 gap-2">
-                              <input
-                                type="text"
-                                value={editing[doc.id]?.goals?.[key]?.name ?? goal.name}
-                                onChange={(e) => handleGoalChange(doc.id, key, "name", e.target.value)}
-                                onBlur={() => handleGoalUpdate(doc.id, key)}
-                                className="font-medium text-gray-700 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none w-full sm:w-auto min-w-[120px] sm:min-w-[150px]"
-                              />
+                  </div>
+                  <div className="space-y-4">
+                    {Object.entries(doc.goals || {})
+                      .filter(([_, goal]) => !hideCompletedGoals || !goal.achieved)
+                      .sort((a, b) => {
+                        const aIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(a[0]) : -1
+                        const bIndex = doc.goalsOrder ? doc.goalsOrder.indexOf(b[0]) : -1
+                        if (aIndex === -1) return 1
+                        if (bIndex === -1) return -1
+                        return aIndex - bIndex
+                      })
+                      .map(([key, goal]) => (
+                        <div 
+                          key={key} 
+                          className={`bg-white rounded-lg p-4 shadow-sm ${
+                            goal.achieved 
+                              ? 'border-2 border-green-200 bg-green-50' 
+                              : 'border border-gray-100'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <input
+                              type="text"
+                              value={editing[doc.id]?.goals?.[key]?.name ?? goal.name}
+                              onChange={(e) => handleGoalChange(doc.id, key, "name", e.target.value)}
+                              onBlur={() => handleGoalUpdate(doc.id, key)}
+                              className={`font-medium border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none flex-1 mr-2 ${
+                                goal.achieved ? 'text-green-700' : 'text-gray-700'
+                              }`}
+                            />
+                            <button
+                              onClick={() => showDeleteConfirmation("goal", doc.id, key)}
+                              className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                          {goal.isQualitative ? (
+                            <div className="flex items-center space-x-2">
                               <button
-                                onClick={() => showDeleteConfirmation("goal", doc.id, key)}
-                                className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                onClick={() => handleQualitativeGoalToggle(doc.id, key, goal.achieved)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200 ${
+                                  goal.achieved
+                                    ? "bg-green-500 border-green-500"
+                                    : "bg-white border-gray-300 hover:border-gray-400"
+                                }`}
                               >
-                                <Trash2 size={16} />
+                                {goal.achieved && (
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
                               </button>
+                              <span className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-600'}`}>
+                                Mark as complete
+                              </span>
                             </div>
-                            {goal.isQualitative ? (
-                              <div className="flex items-center space-x-2 mt-2">
-                                <button
-                                  onClick={() => handleQualitativeGoalToggle(doc.id, key, goal.achieved)}
-                                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200 ${
-                                    goal.achieved
-                                      ? "bg-green-500 border-green-500"
-                                      : "bg-white border-gray-300 hover:border-gray-400"
+                          ) : (
+                            <>
+                              <div className="flex items-center space-x-2 mb-2">
+                                <span className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>Stat:</span>
+                                <select
+                                  value={editing[doc.id]?.goals?.[key]?.stat ?? goal.stat}
+                                  onChange={(e) => handleGoalChange(doc.id, key, "stat", e.target.value)}
+                                  onBlur={() => handleGoalUpdate(doc.id, key)}
+                                  className={`text-sm border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent ${
+                                    goal.achieved ? 'text-green-700' : ''
                                   }`}
                                 >
-                                  {goal.achieved && (
-                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
-                                </button>
-                                <span className="text-sm text-gray-600">Mark as complete</span>
+                                  {Object.keys(doc.stats || {}).map((statName) => (
+                                    <option key={statName} value={statName}>
+                                      {statName}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
-                            ) : (
-                              <>
-                                <div className="text-sm text-gray-600 flex flex-wrap items-center mb-1 gap-1">
-                                  <span className="mr-2">Stat:</span>
-                                  <select
-                                    value={editing[doc.id]?.goals?.[key]?.stat ?? goal.stat}
-                                    onChange={(e) => handleGoalChange(doc.id, key, "stat", e.target.value)}
-                                    onBlur={() => handleGoalUpdate(doc.id, key)}
-                                    className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent flex-grow sm:flex-grow-0"
-                                  >
-                                    {Object.keys(doc.stats || {}).map((statName) => (
-                                      <option key={statName} value={statName}>
-                                        {statName}
-                                      </option>
-                                    ))}
-                                  </select>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  Current: {goal.currentValue}
                                 </div>
-                                <div className="text-sm text-gray-600">Current: {goal.currentValue}</div>
-                                <div className="text-sm text-gray-600 flex flex-wrap items-center mb-3 gap-1">
-                                  <span className="mr-2">Target:</span>
+                                <div className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  Target:{" "}
                                   <input
                                     type="text"
                                     value={editing[doc.id]?.goals?.[key]?.target ?? goal.targetValue}
                                     onChange={(e) => handleGoalChange(doc.id, key, "target", e.target.value)}
                                     onBlur={() => handleGoalUpdate(doc.id, key)}
-                                    className="w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent"
+                                    className={`w-20 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent text-right ${
+                                      goal.achieved ? 'text-green-700' : ''
+                                    }`}
                                   />
                                 </div>
-                                <div className="mt-2">
-                                  <div className="flex items-center">
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                      <div
-                                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                                        style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-sm text-gray-600 whitespace-nowrap">
-                                      {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
-                                    </span>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                                        goal.achieved ? 'bg-green-500' : 'bg-blue-600'
+                                      }`}
+                                      style={{ width: `${calculateGoalProgress(goal.currentValue, goal.targetValue)}%` }}
+                                    ></div>
                                   </div>
+                                  <span className={`ml-2 text-sm whitespace-nowrap ${
+                                    goal.achieved ? 'text-green-600' : 'text-gray-500'
+                                  }`}>
+                                    {calculateGoalProgress(goal.currentValue, goal.targetValue)}%
+                                  </span>
                                 </div>
-                              </>
-                            )}
-                            <div className="mt-2">
-                              {goal.achieved ? (
-                                <span className="text-green-500 flex items-center text-sm">
-                                  Achieved <CheckCircle size={16} className="ml-1" />
-                                </span>
-                              ) : (
-                                <span className="text-red-500 flex items-center text-sm">
-                                  Not Achieved <XCircle size={16} className="ml-1" />
-                                </span>
-                              )}
-                            </div>
-                          </li>
-                        ))}
-                    </ul>
+                                <div className="flex items-center text-sm">
+                                  {goal.achieved ? (
+                                    <span className="text-green-500 flex items-center font-medium">
+                                      <CheckCircle size={16} className="mr-1" />
+                                      Goal Achieved
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500 flex items-center">
+                                      Not Achieved <XCircle size={16} className="ml-1" />
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState({ isOpen: false, type: null, data: {} })}
-        title={`Add New ${modalState.type === "category" ? "Category" : modalState.type === "stat" ? "Stat" : "Goal"}`}
-      >
-        {modalState.type === "category" && <CategoryForm onSubmit={handleAddCategory} />}
-        {modalState.type === "stat" && (
-          <StatForm onSubmit={(data) => handleAddOrUpdate("stat", modalState.data.categoryId, data)} />
+            ))}
+          </div>
         )}
-        {modalState.type === "goal" && (
-          <GoalForm
-            onSubmit={(data) => handleAddOrUpdate("goal", modalState.data.categoryId, data)}
-            stats={documents.find((doc) => doc.id === modalState.data.categoryId)?.stats || {}}
-          />
-        )}
-      </Modal>
 
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
-        onConfirm={confirmDialog.onConfirm}
-        message={confirmDialog.message}
-      />
+        {/* Modals */}
+        <Modal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, type: null, data: {} })}
+          title={`Add New ${modalState.type === "category" ? "Category" : modalState.type === "stat" ? "Stat" : "Goal"}`}
+        >
+          {modalState.type === "category" && <CategoryForm onSubmit={handleAddCategory} />}
+          {modalState.type === "stat" && (
+            <StatForm onSubmit={(data) => handleAddOrUpdate("stat", modalState.data.categoryId, data)} />
+          )}
+          {modalState.type === "goal" && (
+            <GoalForm
+              onSubmit={(data) => handleAddOrUpdate("goal", modalState.data.categoryId, data)}
+              stats={documents.find((doc) => doc.id === modalState.data.categoryId)?.stats || {}}
+            />
+          )}
+        </Modal>
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
+          onConfirm={confirmDialog.onConfirm}
+          message={confirmDialog.message}
+        />
+      </div>
     </div>
   )
 }
