@@ -36,14 +36,14 @@ const Privacy = () => {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">5. Use of Firebase</h2>
         <p className="mb-4">
-          LifeStat uses Firebase, a platform developed by Google, for various backend services including authentication and data storage. Firebase collects and processes data as described in the Google Privacy Policy. We do not have direct access to this data, and it is managed securely by Firebase.
+          ViveStat uses Firebase, a platform developed by Google, for various backend services including authentication and data storage. Firebase collects and processes data as described in the Google Privacy Policy. We do not have direct access to this data, and it is managed securely by Firebase.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">6. Cookies and Tracking Technologies</h2>
         <p className="mb-4">
-          LifeStat does not use non-functional cookies. We only use essential cookies necessary for the functioning of our service. For analytics purposes, we use backend service providers that may use cookies or similar tracking technologies to collect aggregated and anonymized usage data. This data helps us improve our services but does not personally identify you.
+          ViveStat does not use non-functional cookies. We only use essential cookies necessary for the functioning of our service. For analytics purposes, we use backend service providers that may use cookies or similar tracking technologies to collect aggregated and anonymized usage data. This data helps us improve our services but does not personally identify you.
         </p>
       </section>
 
@@ -64,7 +64,7 @@ const Privacy = () => {
       <section>
         <h2 className="text-2xl font-semibold mb-4">9. Contact Us</h2>
         <p>
-          If you have any questions about this Privacy Policy, please contact us at privacy@lifestat.com
+          If you have any questions about this Privacy Policy, please contact us at privacy@vivestat.com
         </p>
       </section>
     </div>

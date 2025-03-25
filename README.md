@@ -1,72 +1,68 @@
-# LifeStat - Your Personal Life Tracker
+# ViveStat
 
-LifeStat is a modern web application that helps you track and visualize various aspects of your life through customizable statistics and goals. Whether you're monitoring fitness progress, reading habits, or any other life metrics, LifeStat provides an intuitive interface to keep track of your journey.
+ViveStat is a modern web application designed to help users track and manage various aspects of their life through customizable categories, stats, and goals. Built with React and Firebase, it offers a seamless user experience with real-time updates and data persistence.
 
 ## Features
 
-- 📊 **Customizable Stats**: Track any metric that matters to you
-- 🎯 **Goal Setting**: Set both numerical and task-based goals
-- 📈 **Progress Visualization**: Real-time progress tracking with visual indicators
-- 📁 **Category Organization**: Organize your stats into custom categories
-- 🔄 **Interactive Updates**: Modify stats and see goal progress update instantly
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+- 🔐 **Secure Authentication**: User-friendly sign-up and login system
+- 📊 **Category Management**: Create and organize different life aspects
+- 📈 **Stat Tracking**: Monitor numerical values with real-time updates
+- 🎯 **Goal Setting**: Set and track progress towards your objectives
+- 📱 **Responsive Design**: Works seamlessly across all devices
+- 🌙 **Dark Mode**: Comfortable viewing experience in any lighting condition
+- 🔄 **Real-time Updates**: Instant data synchronization across devices
+- 🎨 **Modern UI**: Clean and intuitive interface
 
 ## Tech Stack
 
-- React.js
-- Tailwind CSS
-- Firebase (Authentication & Database)
-- Framer Motion (Animations)
+- **Frontend**: React.js with Vite
+- **Styling**: Tailwind CSS
+- **Authentication**: Firebase Auth
+- **Database**: Firebase Firestore
+- **Deployment**: Firebase Hosting
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
 - npm or yarn
-- Firebase account and project setup
+- Firebase account
+- Git (for version control)
 
 ## Getting Started
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/life-stat.git
-   cd life-stat
+   git clone https://github.com/yourusername/vivestat.git
+   cd vivestat
    ```
 
 2. Install dependencies:
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. Set up Firebase:
-   - Create a new Firebase project
-   - Enable Authentication (Email/Password)
-   - Create a Firestore database
-   - Copy your Firebase configuration
+3. Create a Firebase project and enable Authentication and Firestore
 
-4. Create a `.env` file in the root directory:
+4. Create a `.env` file in the root directory with your Firebase configuration:
    ```
-   REACT_APP_FIREBASE_API_KEY=your_api_key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
-   REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-   REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-   REACT_APP_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
    ```
 
 5. Start the development server:
    ```bash
-   npm start
-   # or
-   yarn start
+   npm run dev
    ```
 
-The application will be available at `http://localhost:3000`.
+6. Open your browser and navigate to `http://localhost:5173`
 
 ## Deployment
 
-### Firebase Hosting (Recommended)
+### Firebase Hosting
 
 1. Install Firebase CLI:
    ```bash
@@ -78,26 +74,26 @@ The application will be available at `http://localhost:3000`.
    firebase login
    ```
 
-3. Initialize Firebase in your project:
+3. Initialize Firebase:
    ```bash
    firebase init
    ```
-   - Select Hosting
-   - Choose your Firebase project
-   - Use `build` as your public directory
-   - Configure as a single-page app: Yes
 
-4. Build and deploy:
+4. Build the project:
    ```bash
    npm run build
+   ```
+
+5. Deploy to Firebase:
+   ```bash
    firebase deploy
    ```
 
 ### Alternative Deployment Options
 
-- **Vercel**: Push to GitHub and connect your repository to Vercel
-- **Netlify**: Connect your GitHub repository to Netlify
-- **GitHub Pages**: Configure for GitHub Pages deployment
+- Vercel
+- Netlify
+- GitHub Pages
 
 ## Contributing
 
@@ -107,6 +103,10 @@ The application will be available at `http://localhost:3000`.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Support
 
-For support, please open an issue in the GitHub repository or contact the maintainers.
+For support, email support@vivestat.com or open an issue in the repository.
