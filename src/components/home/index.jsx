@@ -293,7 +293,7 @@ const Home = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/50 to-purple-100/50 blur-3xl -z-10"></div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-indigo-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Welcome to LifeStat
+            Welcome to ViveStat
           </h1>
           <p className="text-xl sm:text-2xl text-indigo-700 max-w-2xl mx-auto">
             Your Personal Life Tracker - Measure your life's stats and achieve your goals
@@ -309,7 +309,7 @@ const Home = () => {
           <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-800">Stats for Your Life Journey</h2>
             <p className="text-lg mb-8 text-gray-700 leading-relaxed max-w-3xl mx-auto">
-              LifeStat is your all-in-one solution for tracking and understanding every quantitative aspect of your
+              ViveStat is your all-in-one solution for tracking and understanding every quantitative aspect of your
               life. Visualize your journey, celebrate achievements, and unlock your full potential.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -341,9 +341,9 @@ const Home = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className="text-center mb-8 ">
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-4 mt-10 text-indigo-800">See LifeStat in Action</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-4 mt-10 text-indigo-800">See ViveStat in Action</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Experience how LifeStat helps you track and achieve your goals with our interactive demo
+              Experience how ViveStat helps you track and achieve your goals with our interactive demo
             </p>
           </div>
           <div className="w-full max-w-4xl mx-auto">
@@ -391,7 +391,7 @@ const Home = () => {
             ) : (
               <div>
                 <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-2xl mx-auto">
-                  Ready to take control of your life's statistics? Sign up or log in to begin your LifeStat journey and
+                  Ready to take control of your life's statistics? Sign up or log in to begin your ViveStat journey and
                   unlock your full potential!
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">

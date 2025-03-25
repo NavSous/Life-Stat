@@ -122,7 +122,7 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-indigo-600 font-quantify">LifeStat</h1>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-indigo-600 font-quantify">ViveStat</h1>
           <p className="text-xl sm:text-2xl text-indigo-500 max-w-3xl mx-auto">
             Transforming Personal Growth into an Epic Adventure
           </p>
@@ -136,7 +136,7 @@ const About = () => {
         >
           <h2 className="text-3xl sm:text-4xl font-semibold mb-6 text-indigo-700">Your Journey Begins Here</h2>
           <p className="text-lg sm:text-xl mb-8 max-w-4xl mx-auto text-gray-700 leading-relaxed">
-            Welcome to LifeStat – where personal development meets gamification. We've reimagined the path to
+            Welcome to ViveStat – where personal development meets gamification. We've reimagined the path to
             self-improvement, turning everyday life into an exciting quest for growth and achievement.
           </p>
         </motion.section>
@@ -149,7 +149,7 @@ const About = () => {
         >
           <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 backdrop-blur-sm bg-opacity-80">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-indigo-600 text-center">
-              Unleash Your Potential with LifeStat
+              Unleash Your Potential with ViveStat
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
@@ -173,7 +173,7 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl font-semibold mb-6 text-indigo-700">The LifeStat Philosophy</h2>
+          <h2 className="text-3xl sm:text-4xl font-semibold mb-6 text-indigo-700">The ViveStat Philosophy</h2>
 
           <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-3xl p-6 sm:p-8 max-w-3xl mx-auto shadow-lg">
             <p className="text-lg text-gray-700 mb-4">
@@ -196,7 +196,7 @@ const About = () => {
             <div className="bg-white rounded-3xl shadow-lg p-6 backdrop-blur-sm bg-opacity-80">
               <h3 className="text-xl font-semibold mb-4 text-indigo-600">Interconnected Life Areas</h3>
               <p className="text-gray-700">
-                LifeStat recognizes that all aspects of your life are interconnected. Our platform allows you to see how
+                ViveStat recognizes that all aspects of your life are interconnected. Our platform allows you to see how
                 progress in one area positively impacts others, providing a comprehensive view of your personal growth
                 journey.
               </p>
@@ -204,7 +204,7 @@ const About = () => {
             <div className="bg-white rounded-3xl shadow-lg p-6 backdrop-blur-sm bg-opacity-80">
               <h3 className="text-xl font-semibold mb-4 text-indigo-600">Data-Driven Insights</h3>
               <p className="text-gray-700">
-                By tracking your daily activities and progress, LifeStat generates valuable insights. These data-driven
+                By tracking your daily activities and progress, ViveStat generates valuable insights. These data-driven
                 recommendations help you optimize your routines and make informed decisions about where to focus your
                 efforts.
               </p>
