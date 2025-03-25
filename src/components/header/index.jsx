@@ -21,7 +21,7 @@ const Header = () => {
         : [
             { label: 'Login', to: '/login' },
             { label: 'Sign Up', to: '/register' },
-            { label: 'About Life Stat', to: '/about' },
+            { label: 'About ViveStat', to: '/about' },
             { label: 'Privacy Policy', to: '/privacy_policy' },
           ]
 
