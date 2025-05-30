@@ -16,7 +16,6 @@ const Header = () => {
             { label: 'Logout', onClick: () => { doSignOut().then(() => { navigate('/login') }) } },
             { label: 'About', to: '/about' },
             { label: 'Privacy Policy', to: '/privacy_policy' },
-
           ]
         : [
             { label: 'Login', to: '/login' },
@@ -31,7 +30,7 @@ const Header = () => {
             <Link to="/" className="text-xl font-bold text-blue-600">ViveStat</Link>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-4">
+            <div className="hidden md:flex items-center space-x-4">
                 {menuItems.map((item, index) => (
                     item.to ? (
                         <Link key={index} to={item.to} className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
@@ -47,11 +46,13 @@ const Header = () => {
 
             {/* Mobile Menu */}
             <div className="md:hidden relative">
-                <button onClick={toggleMenu} className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+                <div className="flex items-center space-x-2">
+                    <button onClick={toggleMenu} className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
                         {menuItems.map((item, index) => (
