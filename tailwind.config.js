@@ -1,10 +1,24 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './src/**/*.{html,js,jsx}'
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'quantify': ['Quantify', 'sans-serif'],
+      },
+      colors: {
+        dark: {
+          bg: '#1a1a1a',
+          text: '#ffffff',
+          primary: '#3b82f6',
+          secondary: '#6b7280',
+        }
+      }
+    },
   },
   plugins: [],
 }
